@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="diplom">
+        <createTable tableName="COMPANY">
+            <column name="ID" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_COMPANY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="IS_ACTIVE" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LANGUAGE_" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED_BY" type="VARCHAR(255)"/>
+            <column name="DELETED_DATE" type="${offsetDateTime.type}"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="diplom">
+        <createTable tableName="CUSTOMER">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_CUSTOMER"/>
+            </column>
+            <column name="PHONE" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FIRST_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LAST_NAME" type="VARCHAR(255)"/>
+            <column name="IS_VERIFIED" type="BOOLEAN"/>
+            <column name="IS_BLOCKED" type="BOOLEAN"/>
+            <column name="BIRTHDAY" type="DATE"/>
+            <column name="COMPANY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED_BY" type="VARCHAR(255)"/>
+            <column name="DELETED_DATE" type="${offsetDateTime.type}"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="${offsetDateTime.type}"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="3" author="diplom">
+        <createTable tableName="CUSTOMER_BONUS_ACCOUNT">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_CUSTOMER_BONUS_ACCOUNT"/>
+            </column>
+            <column name="CUSTOMER_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMPANY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOYALTY_LEVEL_ID" type="UUID"/>
+            <column name="MARK" type="DECIMAL(19, 2)"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="${offsetDateTime.type}"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="4" author="diplom">
+        <createTable tableName="LOYALTY_LEVEL">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_LOYALTY_LEVEL"/>
+            </column>
+            <column name="DISCOUNT" type="DECIMAL(19, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CAHSBACK_RATE" type="DECIMAL(19, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MARKSPEND_RATE" type="DECIMAL(19, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NUMBER_" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REQUIRED_SUM" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EFFECTIVE_CASH" type="DECIMAL(19, 2)"/>
+            <column name="LOYALTY_PROGRAM_CONFIG_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED_BY" type="VARCHAR(255)"/>
+            <column name="DELETED_DATE" type="${offsetDateTime.type}"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="${offsetDateTime.type}"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="${offsetDateTime.type}"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="5" author="diplom">
+        <createTable tableName="LOYALTY_PROGRAM_CONFIG">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_LOYALTY_PROGRAM_CONFIG"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="PRIORITY" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="IS_ACTIVE" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMPANY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="${offsetDateTime.type}"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFIED_DATE" type="${offsetDateTime.type}"/>
+            <column name="DELETED_BY" type="VARCHAR(255)"/>
+            <column name="DELETED_DATE" type="${offsetDateTime.type}"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="6" author="diplom">
+        <createIndex indexName="IDX_CUSTOMER_BONUS_ACCOUNT_COMPANY" tableName="CUSTOMER_BONUS_ACCOUNT">
+            <column name="COMPANY_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="COMPANY_ID" baseTableName="CUSTOMER_BONUS_ACCOUNT"
+                                 constraintName="FK_CUSTOMER_BONUS_ACCOUNT_ON_COMPANY" referencedColumnNames="ID"
+                                 referencedTableName="COMPANY"/>
+    </changeSet>
+    <changeSet id="7" author="diplom">
+        <createIndex indexName="IDX_CUSTOMER_BONUS_ACCOUNT_LOYALTY_LEVEL" tableName="CUSTOMER_BONUS_ACCOUNT">
+            <column name="LOYALTY_LEVEL_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="LOYALTY_LEVEL_ID" baseTableName="CUSTOMER_BONUS_ACCOUNT"
+                                 constraintName="FK_CUSTOMER_BONUS_ACCOUNT_ON_LOYALTY_LEVEL" referencedColumnNames="ID"
+                                 referencedTableName="LOYALTY_LEVEL"/>
+    </changeSet>
+    <changeSet id="8" author="diplom">
+        <createIndex indexName="IDX_CUSTOMER_COMPANY_ID" tableName="CUSTOMER">
+            <column name="COMPANY_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="COMPANY_ID" baseTableName="CUSTOMER"
+                                 constraintName="FK_CUSTOMER_ON_COMPANY" referencedColumnNames="ID"
+                                 referencedTableName="COMPANY"/>
+    </changeSet>
+    <changeSet id="9" author="diplom">
+        <createIndex indexName="IDX_LOYALTY_LEVEL_LOYALTY_PROGRAM_CONFIG" tableName="LOYALTY_LEVEL">
+            <column name="LOYALTY_PROGRAM_CONFIG_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="LOYALTY_PROGRAM_CONFIG_ID" baseTableName="LOYALTY_LEVEL"
+                                 constraintName="FK_LOYALTY_LEVEL_ON_LOYALTY_PROGRAM_CONFIG" referencedColumnNames="ID"
+                                 referencedTableName="LOYALTY_PROGRAM_CONFIG"/>
+    </changeSet>
+    <changeSet id="10" author="diplom">
+        <createIndex indexName="IDX_LOYALTY_PROGRAM_CONFIG_COMPANY" tableName="LOYALTY_PROGRAM_CONFIG">
+            <column name="COMPANY_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="COMPANY_ID" baseTableName="LOYALTY_PROGRAM_CONFIG"
+                                 constraintName="FK_LOYALTY_PROGRAM_CONFIG_ON_COMPANY" referencedColumnNames="ID"
+                                 referencedTableName="COMPANY"/>
+    </changeSet>
+    <changeSet id="11" author="diplom">
+        <addForeignKeyConstraint baseColumnNames="CUSTOMER_ID" baseTableName="CUSTOMER_BONUS_ACCOUNT"
+                                 constraintName="FK_CUSTOMER_BONUS_ACCOUNT_ON_CUSTOMER" referencedColumnNames="ID"
+                                 referencedTableName="CUSTOMER"/>
+    </changeSet>
+</databaseChangeLog>

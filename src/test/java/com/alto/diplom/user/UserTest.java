@@ -1,6 +1,6 @@
 package com.alto.diplom.user;
 
-import com.alto.diplom.core.User;
+import com.alto.diplom.entity.core.User;
 import com.alto.diplom.test_support.AuthenticatedAsAdmin;
 import io.jmix.core.DataManager;
 import io.jmix.core.security.UserRepository;

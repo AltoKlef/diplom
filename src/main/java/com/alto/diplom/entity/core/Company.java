@@ -1,5 +1,6 @@
-package com.alto.diplom.core;
+package com.alto.diplom.entity.core;
 
+import com.alto.diplom.enums.Language;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;

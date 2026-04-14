@@ -1,5 +1,6 @@
 package com.alto.diplom.entity.loyalty;
 
+import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;

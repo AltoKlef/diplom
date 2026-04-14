@@ -1,5 +1,6 @@
 package com.alto.diplom.entity.transactions;
 
+import com.alto.diplom.entity.items.Item;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;

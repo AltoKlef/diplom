@@ -4,7 +4,7 @@
       focusComponent="usersDataGrid">
     <data>
         <collection id="usersDc"
-                    class="com.alto.diplom.core.User">
+                    class="com.alto.diplom.entity.core.User">
             <fetchPlan extends="_base"/>
             <loader id="usersDl" readOnly="true">
                 <query>

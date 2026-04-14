@@ -1,4 +1,4 @@
-package com.alto.diplom.core;
+package com.alto.diplom.enums;
 
 import io.jmix.core.metamodel.datatype.EnumClass;
 

@@ -5,7 +5,7 @@
       focusComponent="companiesDataGrid">
     <data>
         <collection id="companiesDc"
-                    class="com.alto.diplom.core.Company">
+                    class="com.alto.diplom.entity.core.Company">
             <fetchPlan extends="_base"/>
             <loader id="companiesDl" readOnly="true"/>
         </collection>

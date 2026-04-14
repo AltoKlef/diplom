@@ -1,7 +1,7 @@
 package com.alto.diplom.repository;
 
-import com.alto.diplom.core.Company;
-import com.alto.diplom.core.Customer;
+import com.alto.diplom.entity.core.Company;
+import com.alto.diplom.entity.core.Customer;
 import com.alto.diplom.entity.loyalty.CustomerBonusAccount;
 import io.jmix.core.repository.FetchPlan;
 import io.jmix.core.repository.JmixDataRepository;

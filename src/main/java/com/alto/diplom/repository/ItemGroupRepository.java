@@ -1,6 +1,6 @@
 package com.alto.diplom.repository;
 
-import com.alto.diplom.entity.ItemGroup;
+import com.alto.diplom.entity.items.ItemGroup;
 import io.jmix.core.repository.JmixDataRepository;
 
 import java.util.UUID;

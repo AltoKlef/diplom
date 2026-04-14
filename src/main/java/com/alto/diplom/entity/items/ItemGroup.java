@@ -1,6 +1,6 @@
-package com.alto.diplom.entity;
+package com.alto.diplom.entity.items;
 
-import com.alto.diplom.core.Company;
+import com.alto.diplom.entity.core.Company;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;

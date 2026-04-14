@@ -1,7 +1,7 @@
 package com.alto.diplom.user;
 
 import com.alto.diplom.DiplomApplication;
-import com.alto.diplom.core.User;
+import com.alto.diplom.entity.core.User;
 import com.alto.diplom.view.user.UserDetailView;
 import com.alto.diplom.view.user.UserListView;
 import io.jmix.core.DataManager;

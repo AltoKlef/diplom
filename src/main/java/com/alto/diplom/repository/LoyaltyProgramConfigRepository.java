@@ -1,6 +1,6 @@
 package com.alto.diplom.repository;
 
-import com.alto.diplom.entity.loyalty.LoyaltyProgramConfig;
+import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import io.jmix.core.repository.JmixDataRepository;
 
 import java.util.UUID;

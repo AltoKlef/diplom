@@ -1,6 +1,5 @@
-package com.alto.diplom.entity.transactions;
+package com.alto.diplom.entity.items;
 
-import com.alto.diplom.entity.ItemGroup;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;

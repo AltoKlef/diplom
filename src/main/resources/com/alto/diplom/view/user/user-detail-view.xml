@@ -4,7 +4,7 @@
       focusComponent="form">
     <data>
         <instance id="userDc"
-                  class="com.alto.diplom.core.User">
+                  class="com.alto.diplom.entity.core.User">
             <fetchPlan extends="_base"/>
             <loader/>
         </instance>

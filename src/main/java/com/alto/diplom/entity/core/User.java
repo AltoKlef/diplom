@@ -1,4 +1,4 @@
-package com.alto.diplom.core;
+package com.alto.diplom.entity.core;
 
 import io.jmix.core.HasTimeZone;
 import io.jmix.core.annotation.Secret;

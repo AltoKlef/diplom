@@ -1,6 +1,6 @@
 package com.alto.diplom.view.user;
 
-import com.alto.diplom.core.User;
+import com.alto.diplom.entity.core.User;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.notification.Notification;

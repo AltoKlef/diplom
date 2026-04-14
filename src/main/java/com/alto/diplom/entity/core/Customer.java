@@ -1,4 +1,4 @@
-package com.alto.diplom.core;
+package com.alto.diplom.entity.core;
 
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;

@@ -1,6 +1,6 @@
 package com.alto.diplom.security;
 
-import com.alto.diplom.core.User;
+import com.alto.diplom.entity.core.User;
 import io.jmix.securitydata.user.AbstractDatabaseUserRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.GrantedAuthority;

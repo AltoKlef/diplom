@@ -1,7 +1,7 @@
 package com.alto.diplom.entity.transactions;
 
-import com.alto.diplom.core.Company;
-import com.alto.diplom.core.Customer;
+import com.alto.diplom.entity.core.Company;
+import com.alto.diplom.entity.core.Customer;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;

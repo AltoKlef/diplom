@@ -1,6 +1,6 @@
 package com.alto.diplom.view.main;
 
-import com.alto.diplom.core.User;
+import com.alto.diplom.entity.core.User;
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;

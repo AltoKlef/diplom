@@ -1,6 +1,6 @@
 package com.alto.diplom.view.user;
 
-import com.alto.diplom.core.User;
+import com.alto.diplom.entity.core.User;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.router.Route;
 import io.jmix.flowui.view.*;

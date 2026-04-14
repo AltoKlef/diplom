@@ -1,6 +1,6 @@
 package com.alto.diplom.view.company;
 
-import com.alto.diplom.core.Company;
+import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.repository.CompanyRepository;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.router.Route;

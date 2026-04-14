@@ -10,6 +10,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -24,6 +26,8 @@ import java.util.UUID;
         @Index(name = "IDX_LOYALTY_LEVEL_LOYALTY_PROGRAM_CONFIG", columnList = "LOYALTY_PROGRAM_CONFIG_ID")
 })
 @Entity
+@Getter
+@Setter
 public class LoyaltyLevel {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
@@ -38,7 +42,7 @@ public class LoyaltyLevel {
     @PositiveOrZero
     @Column(name = "CAHSBACK_RATE", nullable = false, precision = 19, scale = 2)
     @NotNull
-    private BigDecimal cahsback_rate;
+    private BigDecimal cashback_rate;
 
     @PositiveOrZero
     @Column(name = "MARKSPEND_RATE", nullable = false, precision = 19, scale = 2)
@@ -87,117 +91,5 @@ public class LoyaltyLevel {
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private OffsetDateTime lastModifiedDate;
-
-    public LoyaltyProgramConfig getLoyaltyProgramConfig() {
-        return loyaltyProgramConfig;
-    }
-
-    public void setLoyaltyProgramConfig(LoyaltyProgramConfig loyaltyProgramConfig) {
-        this.loyaltyProgramConfig = loyaltyProgramConfig;
-    }
-
-    public BigDecimal getEffectiveCash() {
-        return effectiveCash;
-    }
-
-    public void setEffectiveCash(BigDecimal effectiveCash) {
-        this.effectiveCash = effectiveCash;
-    }
-
-    public Integer getRequired_sum() {
-        return required_sum;
-    }
-
-    public void setRequired_sum(Integer required_sum) {
-        this.required_sum = required_sum;
-    }
-
-    public Short getNumber() {
-        return number;
-    }
-
-    public void setNumber(Short number) {
-        this.number = number;
-    }
-
-    public BigDecimal getMarkspend_rate() {
-        return markspend_rate;
-    }
-
-    public void setMarkspend_rate(BigDecimal markspend_rate) {
-        this.markspend_rate = markspend_rate;
-    }
-
-    public BigDecimal getCahsback_rate() {
-        return cahsback_rate;
-    }
-
-    public void setCahsback_rate(BigDecimal cahsback_rate) {
-        this.cahsback_rate = cahsback_rate;
-    }
-
-    public BigDecimal getDiscount() {
-        return discount;
-    }
-
-    public void setDiscount(BigDecimal discount) {
-        this.discount = discount;
-    }
-
-    public OffsetDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(OffsetDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
-
-    public OffsetDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(OffsetDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public OffsetDateTime getDeletedDate() {
-        return deletedDate;
-    }
-
-    public void setDeletedDate(OffsetDateTime deletedDate) {
-        this.deletedDate = deletedDate;
-    }
-
-    public String getDeletedBy() {
-        return deletedBy;
-    }
-
-    public void setDeletedBy(String deletedBy) {
-        this.deletedBy = deletedBy;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
 }

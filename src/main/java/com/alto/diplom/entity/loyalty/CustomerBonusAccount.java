@@ -1,5 +1,6 @@
 package com.alto.diplom.entity.loyalty;
 
+import com.alto.diplom.core.HasCompany;
 import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.entity.core.Customer;
 import io.jmix.core.DeletePolicy;
@@ -22,7 +23,7 @@ import java.util.UUID;
         @Index(name = "IDX_CUSTOMER_BONUS_ACCOUNT_LOYALTY_LEVEL", columnList = "LOYALTY_LEVEL_ID")
 })
 @Entity
-public class CustomerBonusAccount {
+public class CustomerBonusAccount implements HasCompany {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id

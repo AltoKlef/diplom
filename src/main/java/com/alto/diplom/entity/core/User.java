@@ -1,5 +1,7 @@
 package com.alto.diplom.entity.core;
 
+import com.alto.diplom.core.HasCompany;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import io.jmix.core.HasTimeZone;
 import io.jmix.core.annotation.Secret;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
@@ -8,6 +10,8 @@ import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import io.jmix.security.authentication.JmixUserDetails;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -20,12 +24,18 @@ import java.util.UUID;
 @Table(name = "LS_USER", indexes = {
         @Index(name = "IDX_LS_USER_ON_USERNAME", columnList = "USERNAME", unique = true)
 })
-public class User implements JmixUserDetails, HasTimeZone {
+@Getter
+@Setter
+public class User implements JmixUserDetails, HasTimeZone, HasCompany {
 
     @Id
     @Column(name = "ID")
     @JmixGeneratedValue
     private UUID id;
+
+    @JoinColumn(name = "COMPANY_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Company company;
 
     @Version
     @Column(name = "VERSION", nullable = false)
@@ -58,70 +68,12 @@ public class User implements JmixUserDetails, HasTimeZone {
     @Transient
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(final UUID id) {
-        this.id = id;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(final Integer version) {
-        this.version = version;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 
     @Override
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(final Boolean active) {
-        this.active = active;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(final String email) {
-        this.email = email;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(final String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(final String lastName) {
-        this.lastName = lastName;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -131,21 +83,6 @@ public class User implements JmixUserDetails, HasTimeZone {
     @Override
     public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
     }
 
     @Override
@@ -170,7 +107,4 @@ public class User implements JmixUserDetails, HasTimeZone {
         return true;
     }
 
-    public void setTimeZoneId(final String timeZoneId) {
-        this.timeZoneId = timeZoneId;
-    }
 }

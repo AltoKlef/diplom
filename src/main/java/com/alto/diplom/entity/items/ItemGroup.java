@@ -1,5 +1,6 @@
 package com.alto.diplom.entity.items;
 
+import com.alto.diplom.core.HasCompany;
 import com.alto.diplom.entity.core.Company;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
@@ -19,7 +20,7 @@ import java.util.UUID;
         @Index(name = "IDX_ITEM_GROUP_COMPANY", columnList = "COMPANY_ID")
 })
 @Entity
-public class ItemGroup {
+public class ItemGroup implements HasCompany {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id

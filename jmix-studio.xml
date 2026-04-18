@@ -41,4 +41,7 @@
       </list>
     </option>
   </component>
+  <component name="TranslationAddonsNotifySettings">
+    <option name="dontShowInstallSuggest" value="true" />
+  </component>
 </project>

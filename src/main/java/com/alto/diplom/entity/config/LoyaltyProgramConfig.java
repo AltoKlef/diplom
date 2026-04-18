@@ -1,5 +1,6 @@
 package com.alto.diplom.entity.config;
 
+import com.alto.diplom.core.HasCompany;
 import com.alto.diplom.entity.core.Company;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
@@ -27,7 +28,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-public class LoyaltyProgramConfig {
+public class LoyaltyProgramConfig implements HasCompany {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id

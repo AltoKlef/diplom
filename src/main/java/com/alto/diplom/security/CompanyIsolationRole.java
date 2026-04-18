@@ -1,7 +1,7 @@
 package com.alto.diplom.security;
 
 import com.alto.diplom.core.HasCompany;
-import com.alto.diplom.entity.OnRegisterConfig;
+//import com.alto.diplom.entity.OnRegisterConfig;
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import com.alto.diplom.entity.core.Customer;
 import com.alto.diplom.entity.items.ItemGroup;

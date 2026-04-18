@@ -1,11 +1,13 @@
 package com.alto.diplom.view.customer;
 
 import com.alto.diplom.entity.core.Customer;
+import com.alto.diplom.entity.loyalty.CustomerBonusAccount;
 import com.alto.diplom.repository.CustomerRepository;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.FetchPlan;
 import io.jmix.core.SaveContext;
+import io.jmix.flowui.model.InstanceLoader;
 import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,5 +32,20 @@ public class CustomerDetailView extends StandardDetailView<Customer> {
     @Install(target = Target.DATA_CONTEXT)
     private Set<Object> saveDelegate(SaveContext saveContext) {
         return Set.of(repository.save(getEditedEntity()));
+    }
+
+    @ViewComponent
+    private InstanceLoader<CustomerBonusAccount> bonusAccountDl;
+
+    @Subscribe
+    public void onBeforeShow(final BeforeShowEvent event) {
+        // 1. Берем клиента, который сейчас редактируется
+        Customer customer = getEditedEntity();
+
+        // 2. Передаем его в запрос бонусного аккаунта
+        bonusAccountDl.setParameter("customer", customer);
+
+        // 3. Загружаем данные
+        bonusAccountDl.load();
     }
 }

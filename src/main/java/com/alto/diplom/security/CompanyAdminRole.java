@@ -19,7 +19,7 @@ import io.jmix.securityflowui.role.annotation.MenuPolicy;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
 @ResourceRole(name = "CompanyAdmin", code = CompanyAdminRole.CODE)
-public interface CompanyAdminRole extends UiMinimalRole, CompanyIsolationRole {
+public interface CompanyAdminRole extends UiMinimalRole {
     String CODE = "company-admin";
 
     @EntityAttributePolicy(entityClass = Customer.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)

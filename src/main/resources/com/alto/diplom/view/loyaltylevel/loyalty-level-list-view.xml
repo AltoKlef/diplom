@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
+      title="msg://loyaltyLevelListView.title"
+      focusComponent="loyaltyLevelsDataGrid">
+    <data>
+        <collection id="loyaltyLevelsDc"
+                    class="com.alto.diplom.entity.loyalty.LoyaltyLevel">
+            <fetchPlan extends="_base">
+                <property name="loyaltyProgramConfig" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="loyaltyLevelsDl" readOnly="true"/>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout>
+        <genericFilter id="genericFilter"
+                       dataLoader="loyaltyLevelsDl">
+            <properties include=".*"/>
+        </genericFilter>
+        <hbox id="buttonsPanel" classNames="buttons-panel">
+            <startSlot>
+                <button id="createButton" action="loyaltyLevelsDataGrid.createAction"/>
+                <button id="editButton" action="loyaltyLevelsDataGrid.editAction"/>
+                <button id="removeButton" action="loyaltyLevelsDataGrid.removeAction"/>
+            </startSlot>
+            <endSlot>
+                <simplePagination id="pagination" dataLoader="loyaltyLevelsDl"/>
+            </endSlot>
+        </hbox>
+        <dataGrid id="loyaltyLevelsDataGrid"
+                  width="100%"
+                  minHeight="20em"
+                  dataContainer="loyaltyLevelsDc"
+                  columnReorderingAllowed="true">
+            <actions>
+                <action id="createAction" type="list_create"/>
+                <action id="editAction" type="list_edit"/>
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+            <columns resizable="true">
+                <column property="discount"/>
+                <column property="cashback_rate"/>
+                <column property="markspend_rate"/>
+                <column property="number"/>
+                <column property="required_sum"/>
+                <column property="effectiveCash"/>
+                <column property="loyaltyProgramConfig"/>
+            </columns>
+        </dataGrid>
+        <hbox id="lookupActions" visible="false">
+            <button id="selectButton" action="selectAction"/>
+            <button id="discardButton" action="discardAction"/>
+        </hbox>
+    </layout>
+</view>

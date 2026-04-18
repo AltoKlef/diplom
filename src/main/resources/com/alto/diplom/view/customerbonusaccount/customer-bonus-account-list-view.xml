@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
+      title="msg://customerBonusAccountListView.title"
+      focusComponent="customerBonusAccountsDataGrid">
+    <data>
+        <collection id="customerBonusAccountsDc"
+                    class="com.alto.diplom.entity.loyalty.CustomerBonusAccount">
+            <fetchPlan extends="_base">
+                <property name="customer" fetchPlan="_instance_name">
+                    <property name="first_name"/>
+                    <property name="company" fetchPlan="_instance_name"/>
+                </property>
+                <property name="company" fetchPlan="_instance_name"/>
+                <property name="loyaltyLevel" fetchPlan="_instance_name">
+                    <property name="number"/>
+                </property>
+            </fetchPlan>
+            <loader id="customerBonusAccountsDl" readOnly="true"/>
+        </collection>
+        <instance id="customerBonusAccountDc"
+                  class="com.alto.diplom.entity.loyalty.CustomerBonusAccount">
+            <fetchPlan extends="_base">
+                <property name="customer" fetchPlan="_instance_name">
+                    <property name="first_name"/>
+                    <property name="company" fetchPlan="_instance_name"/>
+                </property>
+                <property name="company" fetchPlan="_instance_name"/>
+                <property name="loyaltyLevel" fetchPlan="_instance_name">
+                    <property name="number"/>
+                </property>
+            </fetchPlan>
+            <loader id="customerBonusAccountDl"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout padding="false">
+        <formLayout id="layoutWrapper" classNames="master-detail-layout" height="100%">
+            <vbox id="listLayout" height="100%">
+                <genericFilter id="genericFilter"
+                               dataLoader="customerBonusAccountsDl">
+                    <properties include=".*"/>
+                </genericFilter>
+                <hbox id="buttonsPanel" classNames="buttons-panel">
+                    <startSlot>
+                        <button id="createButton" action="customerBonusAccountsDataGrid.createAction"/>
+                        <button id="editButton" action="customerBonusAccountsDataGrid.editAction"/>
+                        <button id="removeButton" action="customerBonusAccountsDataGrid.removeAction"/>
+                    </startSlot>
+                    <endSlot>
+                        <simplePagination id="pagination" dataLoader="customerBonusAccountsDl"/>
+                    </endSlot>
+                </hbox>
+                <dataGrid id="customerBonusAccountsDataGrid"
+                          width="100%"
+                          minHeight="20em"
+                          dataContainer="customerBonusAccountsDc"
+                          columnReorderingAllowed="true">
+                    <actions>
+                        <action id="createAction" type="list_create"/>
+                        <action id="editAction" type="list_edit"/>
+                        <action id="removeAction" type="list_remove"/>
+                    </actions>
+                    <columns resizable="true">
+                        <column property="customer"/>
+                        <column property="company"/>
+                        <column property="loyaltyLevel"/>
+                        <column property="mark"/>
+                    </columns>
+                </dataGrid>
+                <hbox id="lookupActions" visible="false">
+                    <button id="selectButton" action="selectAction"/>
+                    <button id="discardButton" action="discardAction"/>
+                </hbox>
+            </vbox>
+            <vbox id="detailsLayout" height="100%">
+                <formLayout id="form" dataContainer="customerBonusAccountDc">
+                    <responsiveSteps>
+                        <responsiveStep minWidth="0" columns="1"/>
+                        <responsiveStep minWidth="40em" columns="2"/>
+                    </responsiveSteps>
+                    <entityPicker id="customerField" property="customer">
+                        <actions>
+                            <action id="entityLookupAction" type="entity_lookup"/>
+                            <action id="entityClearAction" type="entity_clear"/>
+                        </actions>
+                    </entityPicker>
+                    <entityPicker id="companyField" property="company">
+                        <actions>
+                            <action id="entityLookupAction" type="entity_lookup"/>
+                            <action id="entityClearAction" type="entity_clear"/>
+                        </actions>
+                    </entityPicker>
+                    <entityPicker id="loyaltyLevelField" property="loyaltyLevel">
+                        <actions>
+                            <action id="entityLookupAction" type="entity_lookup"/>
+                            <action id="entityClearAction" type="entity_clear"/>
+                        </actions>
+                    </entityPicker>
+                    <textField id="markField" property="mark"/>
+                </formLayout>
+                <hbox id="detailActions">
+                    <button id="saveButton" text="msg:///actions.Save" icon="CHECK" themeNames="primary"/>
+                    <button id="cancelButton" text="msg:///actions.Cancel" icon="BAN"/>
+                </hbox>
+            </vbox>
+        </formLayout>
+    </layout>
+</view>

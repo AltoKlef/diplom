@@ -29,28 +29,6 @@ public class DatabaseUserRepository extends AbstractDatabaseUserRepository<User>
         systemUser.setAuthorities(authorities);
     }
 
-    // --- ВОТ ЭТОТ МЕТОД ДЛЯ JMIX 2.x ---
-    @Override
-    public User loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 1. Загружаем пользователя стандартным способом (из базы + его роли из БД)
-        User user = (User) super.loadUserByUsername(username);
-
-        // 2. Если это не админ, добавляем ему Row-level роль программно
-        if (!"admin".equals(username)) {
-            Collection<GrantedAuthority> authorities = new ArrayList<>(user.getAuthorities());
-
-            // Добавляем нашу роль через билдер
-            authorities.addAll(getGrantedAuthoritiesBuilder()
-                    .addRowLevelRole("company-isolation") // Тот самый код из @RowLevelRole
-                    .build());
-
-            // Устанавливаем обновленный список прав
-            user.setAuthorities(authorities);
-        }
-
-        return user;
-    }
-
     @Override
     protected void initAnonymousUser(final User anonymousUser) {
     }

@@ -24,8 +24,6 @@ repositories {
 dependencies {
     implementation 'io.jmix.rest:jmix-rest-starter'
     implementation 'io.jmix.restds:jmix-restds-starter'
-    implementation 'io.jmix.multitenancy:jmix-multitenancy-starter'
-    implementation 'io.jmix.multitenancy:jmix-multitenancy-flowui-starter'
     implementation 'io.jmix.core:jmix-core-starter'
     implementation 'io.jmix.data:jmix-eclipselink-starter'
     implementation 'io.jmix.security:jmix-security-starter'

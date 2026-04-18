@@ -5,6 +5,11 @@
         <item view="ls_User.list" title="msg://com.alto.diplom.view.user/UserListView.title"/>
         <item view="Company.list" title="msg://com.alto.diplom.view.company/companyListView.title"/>
         <item view="Customer.list" title="msg://com.alto.diplom.view.customer/customerListView.title"/>
+        <item view="CustomerBonusAccount.list"
+              title="msg://com.alto.diplom.view.customerbonusaccount/customerBonusAccountListView.title"/>
+        <item view="LoyaltyLevel.list" title="msg://com.alto.diplom.view.loyaltylevel/loyaltyLevelListView.title"/>
+        <item view="LoyaltyProgramConfig.list"
+              title="msg://com.alto.diplom.view.loyaltyprogramconfig/loyaltyProgramConfigListView.title"/>
     </menu>
 
 </menu-config>

@@ -12,11 +12,23 @@
                 <property name="is_verified"/>
                 <property name="is_blocked"/>
                 <property name="birthday"/>
+
                 <property name="company" fetchPlan="_instance_name"/>
                 <property name="createdBy"/>
                 <property name="createdDate"/>
             </fetchPlan>
             <loader id="customerDl"/>
+        </instance>
+
+        <instance id="bonusAccountDc" class="com.alto.diplom.entity.loyalty.CustomerBonusAccount">
+            <fetchPlan extends="_base">
+                <property name="loyaltyLevel" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="bonusAccountDl">
+                <query>
+                    <![CDATA[select e from CustomerBonusAccount e where e.customer = :customer]]>
+                </query>
+            </loader>
         </instance>
     </data>
     <facets>
@@ -39,6 +51,10 @@
             <checkbox id="is_verifiedField" property="is_verified"/>
             <checkbox id="is_blockedField" property="is_blocked"/>
             <datePicker id="birthdayField" property="birthday"/>
+            <formLayout dataContainer="bonusAccountDc">
+                <textField property="mark" label="Бонусный баланс" readOnly="true"/>
+                <entityPicker property="loyaltyLevel" label="Уровень лояльности" readOnly="true"/>
+            </formLayout>
         </formLayout>
         <hbox id="detailActions">
             <button id="saveAndCloseButton" action="saveCloseAction"/>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://customerDetailView.title"
+      focusComponent="form">
+    <data>
+        <instance id="customerDc"
+                  class="com.alto.diplom.entity.core.Customer">
+            <fetchPlan extends="_instance_name">
+                <property name="phone"/>
+                <property name="first_name"/>
+                <property name="last_name"/>
+                <property name="is_verified"/>
+                <property name="is_blocked"/>
+                <property name="birthday"/>
+                <property name="company" fetchPlan="_instance_name"/>
+                <property name="createdBy"/>
+                <property name="createdDate"/>
+            </fetchPlan>
+            <loader id="customerDl"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+    <layout>
+        <formLayout id="form" dataContainer="customerDc">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+            <textField id="phoneField" property="phone"
+                       pattern="^\+?[78][-\s]?\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$" required="true"/>
+            <textField id="first_nameField" property="first_name"/>
+            <textField id="last_nameField" property="last_name"/>
+            <checkbox id="is_verifiedField" property="is_verified"/>
+            <checkbox id="is_blockedField" property="is_blocked"/>
+            <datePicker id="birthdayField" property="birthday"/>
+        </formLayout>
+        <hbox id="detailActions">
+            <button id="saveAndCloseButton" action="saveCloseAction"/>
+            <button id="closeButton" action="closeAction"/>
+        </hbox>
+    </layout>
+</view>

@@ -5,7 +5,12 @@
     <data>
         <collection id="usersDc"
                     class="com.alto.diplom.entity.core.User">
-            <fetchPlan extends="_base"/>
+            <fetchPlan extends="_base">
+                <property name="company" fetchPlan="_base">
+                    <property name="name"/>
+                    <property name="id"/>
+                </property>
+            </fetchPlan>
             <loader id="usersDl" readOnly="true">
                 <query>
                     <![CDATA[select e from ls_User e order by e.username]]>
@@ -68,6 +73,8 @@
                 <column property="email"/>
                 <column property="timeZoneId"/>
                 <column property="active"/>
+                <column property="company"/>
+                <column property="company.id"/>
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">

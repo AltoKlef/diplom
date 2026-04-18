@@ -13,7 +13,7 @@ import io.jmix.security.role.annotation.RowLevelRole;
 @RowLevelRole(name = "CompanyIsolationRole", code = CompanyIsolationRole.CODE)
 public interface CompanyIsolationRole {
     String CODE = "company-isolation-role";
-    String COMPANY_FILTER = "{E}.company.id = :current_user_companyId";
+    String COMPANY_FILTER = "{E}.company = :current_user_company";
 
 //    @JpqlRowLevelPolicy(entityClass = OnRegisterConfig.class,
 //            where = COMPANY_FILTER)

@@ -7,6 +7,7 @@ import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -27,6 +28,8 @@ public class Customer implements HasCompany {
 
     @Column(name = "PHONE", nullable = false, length = 20)
     @NotNull
+    @Pattern(regexp = "^\\+?[78][-\\s]?\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{2}$",
+            message = "Некорректный формат телефона")
     private String phone;
 
     @Column(name = "FIRST_NAME", nullable = false)

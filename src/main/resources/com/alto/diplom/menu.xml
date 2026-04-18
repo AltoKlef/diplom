@@ -4,6 +4,7 @@
     <menu id="application" title="msg://com.alto.diplom/menu.application.title" opened="true">
         <item view="ls_User.list" title="msg://com.alto.diplom.view.user/UserListView.title"/>
         <item view="Company.list" title="msg://com.alto.diplom.view.company/companyListView.title"/>
+        <item view="Customer.list" title="msg://com.alto.diplom.view.customer/customerListView.title"/>
     </menu>
 
 </menu-config>

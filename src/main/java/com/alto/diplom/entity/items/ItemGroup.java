@@ -11,6 +11,8 @@ import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -20,6 +22,8 @@ import java.util.UUID;
         @Index(name = "IDX_ITEM_GROUP_COMPANY", columnList = "COMPANY_ID")
 })
 @Entity
+@Getter
+@Setter
 public class ItemGroup implements HasCompany {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
@@ -44,45 +48,5 @@ public class ItemGroup implements HasCompany {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Company company;
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public OffsetDateTime getDeletedDate() {
-        return deletedDate;
-    }
-
-    public void setDeletedDate(OffsetDateTime deletedDate) {
-        this.deletedDate = deletedDate;
-    }
-
-    public String getDeletedBy() {
-        return deletedBy;
-    }
-
-    public void setDeletedBy(String deletedBy) {
-        this.deletedBy = deletedBy;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
 }

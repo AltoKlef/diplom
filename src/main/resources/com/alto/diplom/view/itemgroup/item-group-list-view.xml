@@ -7,14 +7,14 @@
         <collection id="itemGroupsDc"
                     class="com.alto.diplom.entity.items.ItemGroup">
             <fetchPlan extends="_base">
-                <property name="parent" fetchPlan="_instance_name"/>
+                <property name="parent" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="itemGroupsDl" readOnly="true"/>
         </collection>
         <instance id="itemGroupDc"
                   class="com.alto.diplom.entity.items.ItemGroup">
             <fetchPlan extends="_base">
-                <property name="parent" fetchPlan="_instance_name"/>
+                <property name="parent" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="itemGroupDl"/>
         </instance>

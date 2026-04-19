@@ -41,6 +41,7 @@ public class CompanyInitializerService {
         level.setCashbackRate(CompanyDefaults.DEFAULT_CASHBACK);
         level.setMarkspendRate(CompanyDefaults.DEFAULT_MARK_SPEND);
         level.setLoyaltyProgramConfig(config);
+        level.setNumber(CompanyDefaults.DEFAULT_LEVEL_NUMBER);
 
         dataManager.save(config, level);
     }

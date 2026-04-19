@@ -8,7 +8,7 @@
                     class="com.alto.diplom.entity.loyalty.CustomerBonusAccount">
             <fetchPlan extends="_base">
                 <property name="customer" fetchPlan="_instance_name">
-                    <property name="first_name"/>
+                    <property name="firstName"/>
                     <property name="company" fetchPlan="_instance_name"/>
                 </property>
                 <property name="company" fetchPlan="_instance_name"/>
@@ -22,7 +22,7 @@
                   class="com.alto.diplom.entity.loyalty.CustomerBonusAccount">
             <fetchPlan extends="_base">
                 <property name="customer" fetchPlan="_instance_name">
-                    <property name="first_name"/>
+                    <property name="firstName"/>
                     <property name="company" fetchPlan="_instance_name"/>
                 </property>
                 <property name="company" fetchPlan="_instance_name"/>

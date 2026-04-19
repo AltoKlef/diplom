@@ -38,16 +38,16 @@ public class Customer implements HasCompany {
 
     @Column(name = "FIRST_NAME", nullable = false)
     @NotNull
-    private String first_name;
+    private String firstName;
 
     @Column(name = "LAST_NAME")
-    private String last_name;
+    private String lastName;
 
     @Column(name = "IS_VERIFIED")
-    private Boolean is_verified;
+    private Boolean isVerified;
 
     @Column(name = "IS_BLOCKED")
-    private Boolean is_blocked;
+    private Boolean isBlocked;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "BIRTHDAY")

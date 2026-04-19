@@ -8,12 +8,15 @@
                     class="com.alto.diplom.entity.core.Customer">
             <fetchPlan extends="_instance_name">
                 <property name="phone"/>
-                <property name="first_name"/>
-                <property name="last_name"/>
-                <property name="is_verified"/>
-                <property name="is_blocked"/>
+                <property name="firstName"/>
+                <property name="lastName"/>
+                <property name="isVerified"/>
+                <property name="isBlocked"/>
                 <property name="birthday"/>
-                <property name="company" fetchPlan="_instance_name"/>
+                <property name="company" fetchPlan="_instance_name">
+                    <property name="name"/>
+                    <property name="id"/>
+                </property>
                 <property name="createdBy"/>
                 <property name="createdDate"/>
             </fetchPlan>
@@ -59,11 +62,13 @@
             </actions>
             <columns resizable="true">
                 <column property="phone"/>
-                <column property="first_name"/>
-                <column property="last_name"/>
-                <column property="is_verified"/>
-                <column property="is_blocked"/>
+                <column property="firstName"/>
+                <column property="lastName"/>
+                <column property="isVerified"/>
+                <column property="isBlocked"/>
                 <column property="birthday"/>
+                <column property="company.id"/>
+                <column property="company"/>
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">

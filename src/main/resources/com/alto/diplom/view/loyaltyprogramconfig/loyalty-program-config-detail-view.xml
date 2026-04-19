@@ -5,7 +5,11 @@
     <data>
         <instance id="loyaltyProgramConfigDc"
                   class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
-            <fetchPlan extends="_base"/>
+            <fetchPlan extends="_base">
+                <property name="company" fetchPlan="_base">
+                    <property name="id"/>
+                </property>
+            </fetchPlan>
             <loader id="loyaltyProgramConfigDl"/>
         </instance>
     </data>
@@ -25,6 +29,13 @@
             <textField id="nameField" property="name"/>
             <textField id="priorityField" property="priority"/>
             <checkbox id="isActiveField" property="isActive"/>
+            <entityPicker property="company">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+            <textField property="company.id"/>
         </formLayout>
         <hbox id="detailActions">
             <button id="saveAndCloseButton" action="saveCloseAction"/>

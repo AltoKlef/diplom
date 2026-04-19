@@ -6,7 +6,11 @@
     <data>
         <collection id="loyaltyProgramConfigsDc"
                     class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
-            <fetchPlan extends="_base"/>
+            <fetchPlan extends="_base">
+                <property name="company" fetchPlan="_base">
+                    <property name="id"/>
+                </property>
+            </fetchPlan>
             <loader id="loyaltyProgramConfigsDl" readOnly="true"/>
         </collection>
     </data>
@@ -50,6 +54,8 @@
                 <column property="name"/>
                 <column property="priority"/>
                 <column property="isActive"/>
+                <column property="company"/>
+                <column property="company.id"/>
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">

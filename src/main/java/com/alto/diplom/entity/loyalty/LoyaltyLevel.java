@@ -58,10 +58,7 @@ public class LoyaltyLevel {
     @PositiveOrZero
     @Column(name = "REQUIRED_SUM", nullable = false)
     @NotNull
-    private Integer required_sum;
-
-    @Column(name = "EFFECTIVE_CASH", precision = 19, scale = 2)
-    private BigDecimal effectiveCash;
+    private Integer requiredSum = 0;
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "LOYALTY_PROGRAM_CONFIG_ID", nullable = false)

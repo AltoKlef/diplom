@@ -7,13 +7,14 @@
                   class="com.alto.diplom.entity.core.Customer">
             <fetchPlan extends="_instance_name">
                 <property name="phone"/>
-                <property name="first_name"/>
-                <property name="last_name"/>
-                <property name="is_verified"/>
-                <property name="is_blocked"/>
+                <property name="firstName"/>
+                <property name="lastName"/>
+                <property name="isVerified"/>
+                <property name="isBlocked"/>
                 <property name="birthday"/>
-
-                <property name="company" fetchPlan="_instance_name"/>
+                <property name="company" fetchPlan="_instance_name">
+                    <property name="id"/>
+                </property>
                 <property name="createdBy"/>
                 <property name="createdDate"/>
             </fetchPlan>
@@ -23,6 +24,7 @@
         <instance id="bonusAccountDc" class="com.alto.diplom.entity.loyalty.CustomerBonusAccount">
             <fetchPlan extends="_base">
                 <property name="loyaltyLevel" fetchPlan="_instance_name"/>
+                <property name="company" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="bonusAccountDl">
                 <query>
@@ -46,14 +48,20 @@
             </responsiveSteps>
             <textField id="phoneField" property="phone"
                        pattern="^\+?[78][-\s]?\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}$" required="true"/>
-            <textField id="first_nameField" property="first_name"/>
-            <textField id="last_nameField" property="last_name"/>
-            <checkbox id="is_verifiedField" property="is_verified"/>
-            <checkbox id="is_blockedField" property="is_blocked"/>
+            <textField id="first_nameField" property="firstName"/>
+            <textField id="last_nameField" property="lastName"/>
+            <checkbox id="is_verifiedField" property="isVerified"/>
+            <checkbox id="is_blockedField" property="isBlocked"/>
             <datePicker id="birthdayField" property="birthday"/>
             <formLayout dataContainer="bonusAccountDc">
                 <textField property="mark" label="Бонусный баланс" readOnly="true"/>
                 <entityPicker property="loyaltyLevel" label="Уровень лояльности" readOnly="true"/>
+                <entityPicker property="company">
+                    <actions>
+                        <action id="entityLookupAction" type="entity_lookup"/>
+                        <action id="entityClearAction" type="entity_clear"/>
+                    </actions>
+                </entityPicker>
             </formLayout>
         </formLayout>
         <hbox id="detailActions">

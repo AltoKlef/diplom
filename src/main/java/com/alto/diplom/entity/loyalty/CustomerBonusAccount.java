@@ -9,6 +9,8 @@ import io.jmix.core.entity.annotation.OnDeleteInverse;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -23,6 +25,8 @@ import java.util.UUID;
         @Index(name = "IDX_CUSTOMER_BONUS_ACCOUNT_LOYALTY_LEVEL", columnList = "LOYALTY_LEVEL_ID")
 })
 @Entity
+@Getter
+@Setter
 public class CustomerBonusAccount implements HasCompany {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
@@ -45,6 +49,9 @@ public class CustomerBonusAccount implements HasCompany {
     @ManyToOne(fetch = FetchType.LAZY)
     private LoyaltyLevel loyaltyLevel;
 
+    @Column(name = "EFFECTIVE_CASH", precision = 19, scale = 2)
+    private BigDecimal effectiveCash;
+
     @Column(name = "MARK", precision = 19, scale = 2)
     private BigDecimal mark;
 
@@ -55,61 +62,5 @@ public class CustomerBonusAccount implements HasCompany {
     @LastModifiedDate
     @Column(name = "LAST_MODIFIED_DATE")
     private OffsetDateTime lastModifiedDate;
-
-    public BigDecimal getMark() {
-        return mark;
-    }
-
-    public void setMark(BigDecimal mark) {
-        this.mark = mark;
-    }
-
-    public LoyaltyLevel getLoyaltyLevel() {
-        return loyaltyLevel;
-    }
-
-    public void setLoyaltyLevel(LoyaltyLevel loyaltyLevel) {
-        this.loyaltyLevel = loyaltyLevel;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public OffsetDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(OffsetDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
 }

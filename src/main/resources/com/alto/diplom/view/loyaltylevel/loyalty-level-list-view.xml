@@ -53,8 +53,7 @@
                 <column property="cashbackRate"/>
                 <column property="markspendRate"/>
                 <column property="number"/>
-                <column property="required_sum"/>
-                <column property="effectiveCash"/>
+                <column property="requiredSum"/>
                 <column property="loyaltyProgramConfig"/>
             </columns>
         </dataGrid>

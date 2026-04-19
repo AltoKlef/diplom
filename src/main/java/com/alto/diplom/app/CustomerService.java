@@ -6,7 +6,6 @@ import com.alto.diplom.repository.CustomerRepository;
 import com.alto.diplom.repository.LoyaltyProgramConfigRepository;
 import io.jmix.core.DataManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,10 +32,10 @@ public class CustomerService {
         // 2. Создаем и сохраняем Customer
         Customer customer = dataManager.create(Customer.class);
         customer.setPhone(phone);
-        customer.setFirst_name(firstName);
+        customer.setFirstName(firstName);
         customer.setCompany(company);
-        customer.setIs_verified(false);
-        customer.setIs_blocked(false);
+        customer.setIsVerified(false);
+        customer.setIsBlocked(false);
 
         // Используем save(), чтобы получить сохраненный объект с ID
         Customer savedCustomer = dataManager.save(customer);

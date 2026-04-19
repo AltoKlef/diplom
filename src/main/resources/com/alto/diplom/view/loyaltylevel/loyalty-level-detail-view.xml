@@ -28,8 +28,7 @@
             <textField id="cashback_rateField" property="cashbackRate"/>
             <textField id="markspend_rateField" property="markspendRate"/>
             <textField id="numberField" property="number"/>
-            <textField id="required_sumField" property="required_sum"/>
-            <textField id="effectiveCashField" property="effectiveCash"/>
+            <textField id="required_sumField" property="requiredSum"/>
             <entityPicker id="loyaltyProgramConfigField" property="loyaltyProgramConfig">
                 <actions>
                     <action id="entityLookupAction" type="entity_lookup"/>

@@ -1,6 +1,7 @@
 package com.alto.diplom.security;
 
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
+import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.entity.core.Customer;
 import com.alto.diplom.entity.core.User;
 import com.alto.diplom.entity.items.Item;
@@ -21,11 +22,12 @@ import io.jmix.securityflowui.role.annotation.ViewPolicy;
 public interface CompanyAdminRole extends UiMinimalRole {
     String CODE = "company-admin";
 
-    @EntityAttributePolicy(entityClass = Customer.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = Customer.class, actions = EntityPolicyAction.ALL)
+    @EntityAttributePolicy(entityClass = Customer.class,
+            attributes = {"phone", "firstName", "lastName", "isVerified", "isBlocked", "birthday"},
+            action = EntityAttributePolicyAction.MODIFY)
     void customer();
-
-    @EntityAttributePolicy(entityClass = CustomerBonusAccount.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityAttributePolicy(entityClass = CustomerBonusAccount.class, attributes = {"customer", "loyaltyLevel", "effectiveCash", "mark", "lastModifiedBy", "lastModifiedDate"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = CustomerBonusAccount.class, actions = EntityPolicyAction.ALL)
     void customerBonusAccount();
 
@@ -33,7 +35,7 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityPolicy(entityClass = Item.class, actions = EntityPolicyAction.ALL)
     void item();
 
-    @EntityAttributePolicy(entityClass = ItemGroup.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityAttributePolicy(entityClass = ItemGroup.class, attributes = {"deletedBy", "deletedDate", "parent", "children", "name"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = ItemGroup.class, actions = EntityPolicyAction.ALL)
     void itemGroup();
 
@@ -41,11 +43,11 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityPolicy(entityClass = LoyaltyLevel.class, actions = EntityPolicyAction.ALL)
     void loyaltyLevel();
 
-    @EntityAttributePolicy(entityClass = LoyaltyProgramConfig.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityAttributePolicy(entityClass = LoyaltyProgramConfig.class, attributes = {"name", "priority", "isActive", "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate", "deletedBy", "deletedDate"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = LoyaltyProgramConfig.class, actions = EntityPolicyAction.ALL)
     void loyaltyProgramConfig();
 
-    @EntityAttributePolicy(entityClass = Transaction.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityAttributePolicy(entityClass = Transaction.class, attributes = {"customer", "externalNumber", "totalAmount", "marksEarned", "marksSpent", "externalTransactionTimestamp", "items", "initialTransaction", "isNeedToActivate", "timeActivate"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = Transaction.class, actions = EntityPolicyAction.ALL)
     void transaction();
 
@@ -57,6 +59,9 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityAttributePolicy(entityClass = User.class, attributes = "company", action = EntityAttributePolicyAction.VIEW)
     @EntityPolicy(entityClass = User.class, actions = {EntityPolicyAction.UPDATE, EntityPolicyAction.READ})
     void user();
+
+    @EntityAttributePolicy(entityClass = Company.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
+    void company();
 
     @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list"})
     @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list"})

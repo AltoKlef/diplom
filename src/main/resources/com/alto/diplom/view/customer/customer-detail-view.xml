@@ -26,11 +26,6 @@
                 <property name="loyaltyLevel" fetchPlan="_instance_name"/>
                 <property name="company" fetchPlan="_base"/>
             </fetchPlan>
-            <loader id="bonusAccountDl">
-                <query>
-                    <![CDATA[select e from CustomerBonusAccount e where e.customer = :customer]]>
-                </query>
-            </loader>
         </instance>
     </data>
     <facets>
@@ -53,13 +48,18 @@
             <checkbox id="is_verifiedField" property="isVerified"/>
             <checkbox id="is_blockedField" property="isBlocked"/>
             <datePicker id="birthdayField" property="birthday"/>
+            <entityPicker property="company">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
             <formLayout dataContainer="bonusAccountDc">
-                <textField property="mark" label="Бонусный баланс" readOnly="true"/>
-                <entityPicker property="loyaltyLevel" label="Уровень лояльности" readOnly="true"/>
-                <entityPicker property="company">
+                <textField property="mark" label="Бонусный баланс" readOnly="false"/>
+                <entityPicker property="loyaltyLevel" label="Уровень лояльности">
                     <actions>
-                        <action id="entityLookupAction" type="entity_lookup"/>
-                        <action id="entityClearAction" type="entity_clear"/>
+                        <action id="lookup" type="entity_lookup"/>
+                        <action id="clear" type="entity_clear"/>
                     </actions>
                 </entityPicker>
             </formLayout>

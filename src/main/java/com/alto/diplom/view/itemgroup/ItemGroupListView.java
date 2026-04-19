@@ -1,5 +1,6 @@
 package com.alto.diplom.view.itemgroup;
 
+import com.alto.diplom.entity.items.Item;
 import com.alto.diplom.entity.items.ItemGroup;
 import com.alto.diplom.repository.ItemGroupRepository;
 import com.alto.diplom.view.main.MainView;
@@ -23,6 +24,7 @@ import io.jmix.flowui.UiViewProperties;
 import io.jmix.flowui.accesscontext.UiEntityAttributeContext;
 import io.jmix.flowui.action.SecuredBaseAction;
 import io.jmix.flowui.component.UiComponentUtils;
+import io.jmix.flowui.component.grid.DataGrid;
 import io.jmix.flowui.component.grid.TreeDataGrid;
 import io.jmix.flowui.component.validation.ValidationErrors;
 import io.jmix.flowui.data.EntityValueSource;
@@ -30,10 +32,7 @@ import io.jmix.flowui.data.SupportsValueSource;
 import io.jmix.flowui.kit.action.Action;
 import io.jmix.flowui.kit.action.ActionPerformedEvent;
 import io.jmix.flowui.kit.component.button.JmixButton;
-import io.jmix.flowui.model.CollectionContainer;
-import io.jmix.flowui.model.DataContext;
-import io.jmix.flowui.model.InstanceContainer;
-import io.jmix.flowui.model.InstanceLoader;
+import io.jmix.flowui.model.*;
 import io.jmix.flowui.util.OperationResult;
 import io.jmix.flowui.util.UnknownOperationResult;
 import io.jmix.flowui.view.*;
@@ -93,6 +92,13 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
     @Autowired
     private UiComponentProperties uiComponentProperties;
 
+    @ViewComponent
+    private CollectionContainer<Item> itemsDc; // Должно быть CollectionContainer!
+
+    @ViewComponent
+    private CollectionLoader<Item> itemsDl;    // Должно быть CollectionLoader!
+
+
     private boolean modifiedAfterEdit;
 
     @Subscribe
@@ -109,67 +115,47 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
         setupModifiedTracking();
     }
 
-    @Subscribe
-    public void onBeforeShow(final BeforeShowEvent event) {
-        updateControls(false);
-    }
 
-    @Subscribe
-    private void onBeforeClose(final BeforeCloseEvent event) {
-        preventUnsavedChanges(event);
-    }
+//    @Subscribe("saveButton")
+//    public void onSaveButtonClick(final ClickEvent<JmixButton> event) {
+//        saveEditedEntity();
+//    }
 
-    @Subscribe("itemGroupsDataGrid.createAction")
-    public void onItemGroupsDataGridCreateAction(final ActionPerformedEvent event) {
-        prepareFormForValidation();
-
-        dataContext.clear();
-        ItemGroup entity = dataContext.create(ItemGroup.class);
-        itemGroupDc.setItem(entity);
-        updateControls(true);
-    }
-
-    @Subscribe("itemGroupsDataGrid.editAction")
-    public void onItemGroupsDataGridEditAction(final ActionPerformedEvent event) {
-        updateControls(true);
-    }
-
-    @Subscribe("saveButton")
-    public void onSaveButtonClick(final ClickEvent<JmixButton> event) {
-        saveEditedEntity();
-    }
-
-    @Subscribe("cancelButton")
-    public void onCancelButtonClick(final ClickEvent<JmixButton> event) {
-        if (!hasUnsavedChanges()) {
-            discardEditedEntity();
-            return;
-        }
-
-        if (uiViewProperties.isUseSaveConfirmation()) {
-            viewValidation.showSaveConfirmationDialog(this)
-                    .onSave(this::saveEditedEntity)
-                    .onDiscard(this::discardEditedEntity);
-        } else {
-            viewValidation.showUnsavedChangesDialog(this)
-                    .onDiscard(this::discardEditedEntity);
-        }
-    }
-
+//    @Subscribe("cancelButton")
+//    public void onCancelButtonClick(final ClickEvent<JmixButton> event) {
+//        if (!hasUnsavedChanges()) {
+//            discardEditedEntity();
+//            return;
+//        }
+//
+//        if (uiViewProperties.isUseSaveConfirmation()) {
+//            viewValidation.showSaveConfirmationDialog(this)
+//                    .onSave(this::saveEditedEntity)
+//                    .onDiscard(this::discardEditedEntity);
+//        } else {
+//            viewValidation.showUnsavedChangesDialog(this)
+//                    .onDiscard(this::discardEditedEntity);
+//        }
+//    }
     @Subscribe(id = "itemGroupsDc", target = Target.DATA_CONTAINER)
     public void onItemGroupsDcItemChange(final InstanceContainer.ItemChangeEvent<ItemGroup> event) {
-        prepareFormForValidation();
-
-        ItemGroup entity = event.getItem();
-        dataContext.clear();
-        if (entity != null) {
-            itemGroupDl.setEntityId(EntityValues.getId(entity));
-            itemGroupDl.load();
+        ItemGroup selectedGroup = event.getItem();
+        if (selectedGroup != null) {
+            // Заряжаем лоадер товаров выбранной группой
+            itemsDl.setParameter("group", selectedGroup);
+            itemsDl.load();
         } else {
-            itemGroupDl.setEntityId(null);
-            itemGroupDc.setItem(null);
+            // Если ничего не выбрано, обнуляем список товаров
+            itemsDl.removeParameter("group");
+            itemsDc.getMutableItems().clear();
         }
-        updateControls(false);
+    }
+
+    @Install(to = "itemsDataGrid.create", subject = "initializer")
+    private void itemsDataGridCreateInitializer(Item item) {
+        item.setItemGroup(itemGroupsDataGrid.getSingleSelectedItem());
+        // Если у тебя есть компания у группы, можно и её подтянуть:
+        // item.setCompany(itemGroupsDataGrid.getSingleSelected().getCompany());
     }
 
     private void prepareFormForValidation() {
@@ -181,30 +167,7 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
         });
     }
 
-    private OperationResult saveEditedEntity() {
-        ItemGroup item = itemGroupDc.getItem();
-        ValidationErrors validationErrors = validateView(item);
 
-        if (!validationErrors.isEmpty()) {
-            viewValidation.showValidationErrors(validationErrors);
-            viewValidation.focusProblemComponent(validationErrors);
-            return OperationResult.fail();
-        }
-
-        dataContext.save();
-        itemGroupsDc.replaceItem(item);
-        updateControls(false);
-        return OperationResult.success();
-    }
-
-    private void discardEditedEntity() {
-        resetFormInvalidState();
-
-        dataContext.clear();
-        itemGroupDc.setItem(null);
-        itemGroupDl.load();
-        updateControls(false);
-    }
 
     private void resetFormInvalidState() {
         UiComponentUtils.getComponents(form).forEach(component -> {
@@ -222,31 +185,6 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
         }
         validationErrors.addAll(viewValidation.validateBeanGroup(UiCrossFieldChecks.class, entity));
         return validationErrors;
-    }
-
-    private void updateControls(boolean editing) {
-        UiComponentUtils.getComponents(form).forEach(component -> {
-            if (component instanceof SupportsValueSource<?> valueSourceComponent
-                    && valueSourceComponent.getValueSource() instanceof EntityValueSource<?, ?> entityValueSource
-                    && component instanceof HasValueAndElement<?, ?> field) {
-                field.setReadOnly(!editing || !isUpdatePermitted(entityValueSource));
-            }
-        });
-
-        modifiedAfterEdit = false;
-        detailActions.setVisible(editing);
-        listLayout.setEnabled(!editing);
-        itemGroupsDataGrid.getActions().forEach(Action::refreshState);
-
-        if (!uiComponentProperties.isImmediateRequiredValidationEnabled() && editing) {
-            resetFormInvalidState();
-        }
-    }
-
-    private boolean isUpdatePermitted(EntityValueSource<?, ?> valueSource) {
-        UiEntityAttributeContext context = new UiEntityAttributeContext(valueSource.getMetaPropertyPath());
-        accessManager.applyRegisteredConstraints(context);
-        return context.canModify();
     }
 
     private boolean hasUnsavedChanges() {
@@ -272,59 +210,11 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
         modifiedAfterEdit = false;
     }
 
-    private void preventUnsavedChanges(BeforeCloseEvent event) {
-        CloseAction closeAction = event.getCloseAction();
-
-        if (closeAction instanceof ChangeTrackerCloseAction trackerCloseAction
-                && trackerCloseAction.isCheckForUnsavedChanges()
-                && hasUnsavedChanges()) {
-            UnknownOperationResult result = new UnknownOperationResult();
-
-            if (closeAction instanceof NavigateCloseAction navigateCloseAction) {
-                BeforeLeaveEvent beforeLeaveEvent = navigateCloseAction.getBeforeLeaveEvent();
-                BeforeLeaveEvent.ContinueNavigationAction navigationAction = beforeLeaveEvent.postpone();
-
-                if (uiViewProperties.isUseSaveConfirmation()) {
-                    viewValidation.showSaveConfirmationDialog(this)
-                            .onSave(() -> result.resume(navigateWithSave(navigationAction)))
-                            .onDiscard(() -> result.resume(navigateWithDiscard(navigationAction)))
-                            .onCancel(() -> {
-                                result.otherwise(() -> cancelNavigation(navigationAction));
-                                result.fail();
-                            });
-                } else {
-                    viewValidation.showUnsavedChangesDialog(this)
-                            .onDiscard(() -> result.resume(navigateWithDiscard(navigationAction)))
-                            .onCancel(() -> {
-                                result.otherwise(() -> cancelNavigation(navigationAction));
-                                result.fail();
-                            });
-                }
-            } else {
-                if (uiViewProperties.isUseSaveConfirmation()) {
-                    viewValidation.showSaveConfirmationDialog(this)
-                            .onSave(() -> result.resume(closeWithSave()))
-                            .onDiscard(() -> result.resume(closeWithDiscard()))
-                            .onCancel(result::fail);
-                } else {
-                    viewValidation.showUnsavedChangesDialog(this)
-                            .onDiscard(() -> result.resume(closeWithDiscard()))
-                            .onCancel(result::fail);
-                }
-            }
-
-            event.preventClose(result);
-        }
-    }
 
     private OperationResult navigateWithDiscard(BeforeLeaveEvent.ContinueNavigationAction navigationAction) {
         return navigate(navigationAction, StandardOutcome.DISCARD.getCloseAction());
     }
 
-    private OperationResult navigateWithSave(BeforeLeaveEvent.ContinueNavigationAction navigationAction) {
-        return saveEditedEntity()
-                .compose(() -> navigate(navigationAction, StandardOutcome.SAVE.getCloseAction()));
-    }
 
     private void cancelNavigation(BeforeLeaveEvent.ContinueNavigationAction navigationAction) {
         // Because of using React Router, we need to call
@@ -343,10 +233,6 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
         return OperationResult.success();
     }
 
-    private OperationResult closeWithSave() {
-        return saveEditedEntity()
-                .compose(() -> close(StandardOutcome.SAVE));
-    }
 
     @Install(to = "itemGroupsDl", target = Target.DATA_LOADER, subject = "loadFromRepositoryDelegate")
     private List<ItemGroup> listLoadDelegate(Pageable pageable, JmixDataRepositoryContext context) {

@@ -46,10 +46,10 @@ public class Customer implements HasCompany {
     private String lastName;
 
     @Column(name = "IS_VERIFIED")
-    private Boolean isVerified;
+    private Boolean isVerified = false;
 
     @Column(name = "IS_BLOCKED")
-    private Boolean isBlocked;
+    private Boolean isBlocked = false;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "BIRTHDAY")

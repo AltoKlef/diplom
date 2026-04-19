@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://itemDetailView.title"
+      focusComponent="form">
+    <data>
+        <instance id="itemDc"
+                  class="com.alto.diplom.entity.items.Item">
+            <fetchPlan extends="_base">
+                <property name="itemGroup" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="itemDl"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+    <layout>
+        <formLayout id="form" dataContainer="itemDc">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+            <textField id="nameField" property="name"/>
+            <textField id="priceField" property="price"/>
+            <textField id="externalIdField" property="externalId"/>
+            <checkbox id="canPayByMarkField" property="canPayByMark"/>
+            <checkbox id="canMarkIncreaseField" property="canMarkIncrease"/>
+            <entityPicker id="itemGroupField" property="itemGroup">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+        </formLayout>
+        <hbox id="detailActions">
+            <button id="saveAndCloseButton" action="saveCloseAction"/>
+            <button id="closeButton" action="closeAction"/>
+        </hbox>
+    </layout>
+</view>

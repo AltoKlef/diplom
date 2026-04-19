@@ -1,10 +1,9 @@
-package com.alto.diplom.listeners;
+package com.alto.diplom.listeners.initializers;
 
 import com.alto.diplom.core.HasCompany;
 import com.alto.diplom.entity.core.User;
 import io.jmix.core.security.CurrentAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import io.jmix.core.EntityInitializer;
 

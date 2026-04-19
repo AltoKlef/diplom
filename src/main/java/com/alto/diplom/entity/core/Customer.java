@@ -8,6 +8,8 @@ import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -20,6 +22,8 @@ import java.util.UUID;
         @Index(name = "IDX_CUSTOMER_COMPANY_ID", columnList = "COMPANY_ID")
 })
 @Entity
+@Getter
+@Setter
 public class Customer implements HasCompany {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
@@ -70,100 +74,5 @@ public class Customer implements HasCompany {
     @Column(name = "CREATED_DATE")
     private OffsetDateTime createdDate;
 
-    public Date getBirthday() {
-        return birthday;
-    }
-
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
-
-    public Boolean getIs_blocked() {
-        return is_blocked;
-    }
-
-    public void setIs_blocked(Boolean is_blocked) {
-        this.is_blocked = is_blocked;
-    }
-
-    public Boolean getIs_verified() {
-        return is_verified;
-    }
-
-    public void setIs_verified(Boolean is_verified) {
-        this.is_verified = is_verified;
-    }
-
-    public String getLast_name() {
-        return last_name;
-    }
-
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
-    }
-
-    public String getFirst_name() {
-        return first_name;
-    }
-
-    public void setFirst_name(String first_name) {
-        this.first_name = first_name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    public OffsetDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(OffsetDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public OffsetDateTime getDeletedDate() {
-        return deletedDate;
-    }
-
-    public void setDeletedDate(OffsetDateTime deletedDate) {
-        this.deletedDate = deletedDate;
-    }
-
-    public String getDeletedBy() {
-        return deletedBy;
-    }
-
-    public void setDeletedBy(String deletedBy) {
-        this.deletedBy = deletedBy;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
 }

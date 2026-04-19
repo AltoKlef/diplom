@@ -49,6 +49,7 @@ public class Item {
     private Boolean canMarkIncrease;
 
     @JoinColumn(name = "ITEM_GROUP_ID")
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     private ItemGroup itemGroup;
 

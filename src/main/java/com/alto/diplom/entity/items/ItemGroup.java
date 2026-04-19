@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @JmixEntity
@@ -38,6 +39,14 @@ public class ItemGroup implements HasCompany {
     @Column(name = "DELETED_DATE")
     private OffsetDateTime deletedDate;
 
+    @JoinColumn(name = "PARENT_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ItemGroup parent;
+
+    @OneToMany(mappedBy = "parent")
+    private List<ItemGroup> children;
+
+
     @NotNull
     @InstanceName
     @Column(name = "NAME", nullable = false)
@@ -48,5 +57,6 @@ public class ItemGroup implements HasCompany {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Company company;
+
 
 }

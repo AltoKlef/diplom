@@ -1,4 +1,4 @@
-package com.alto.diplom.listeners;
+package com.alto.diplom.listeners.registration;
 
 //import com.alto.diplom.app.TransactionService;
 //import com.alto.diplom.entity.OnRegisterConfig;

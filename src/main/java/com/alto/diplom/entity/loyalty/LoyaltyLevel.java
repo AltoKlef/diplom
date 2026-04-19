@@ -38,17 +38,17 @@ public class LoyaltyLevel {
     @PositiveOrZero
     @Column(name = "DISCOUNT", nullable = false, precision = 19, scale = 2)
     @NotNull
-    private BigDecimal discount;
+    private BigDecimal discount = BigDecimal.ZERO;
 
     @PositiveOrZero
     @Column(name = "CAHSBACK_RATE", nullable = false, precision = 19, scale = 2)
     @NotNull
-    private BigDecimal cashback_rate;
+    private BigDecimal cashbackRate;
 
     @PositiveOrZero
     @Column(name = "MARKSPEND_RATE", nullable = false, precision = 19, scale = 2)
     @NotNull
-    private BigDecimal markspend_rate;
+    private BigDecimal markspendRate;
 
     @Positive
     @Column(name = "NUMBER_", nullable = false)

@@ -63,7 +63,7 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityAttributePolicy(entityClass = Company.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
     void company();
 
-    @MenuPolicy(menuIds = "Customer.list")
-    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail"})
+    @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list"})
+    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list"})
     void screens();
 }

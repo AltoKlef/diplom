@@ -25,8 +25,8 @@
                 <responsiveStep minWidth="40em" columns="2"/>
             </responsiveSteps>
             <textField id="discountField" property="discount"/>
-            <textField id="cashback_rateField" property="cashback_rate"/>
-            <textField id="markspend_rateField" property="markspend_rate"/>
+            <textField id="cashback_rateField" property="cashbackRate"/>
+            <textField id="markspend_rateField" property="markspendRate"/>
             <textField id="numberField" property="number"/>
             <textField id="required_sumField" property="required_sum"/>
             <textField id="effectiveCashField" property="effectiveCash"/>

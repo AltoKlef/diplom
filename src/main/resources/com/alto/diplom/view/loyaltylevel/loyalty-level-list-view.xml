@@ -50,8 +50,8 @@
             </actions>
             <columns resizable="true">
                 <column property="discount"/>
-                <column property="cashback_rate"/>
-                <column property="markspend_rate"/>
+                <column property="cashbackRate"/>
+                <column property="markspendRate"/>
                 <column property="number"/>
                 <column property="required_sum"/>
                 <column property="effectiveCash"/>

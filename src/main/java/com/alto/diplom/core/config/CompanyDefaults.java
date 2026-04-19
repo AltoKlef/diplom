@@ -1,6 +1,5 @@
 package com.alto.diplom.core.config;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.math.BigDecimal;
 
@@ -11,4 +10,5 @@ public interface CompanyDefaults {
     BigDecimal DEFAULT_MARK_SPEND = BigDecimal.ONE;
     Integer DEFAULT_PRIORITY = 100;
     Short DEFAULT_LEVEL_NUMBER=1;
+    String DEFAULT_LEVEL_NAME="Начальный";
 }

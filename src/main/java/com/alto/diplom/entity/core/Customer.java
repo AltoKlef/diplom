@@ -4,6 +4,7 @@ import com.alto.diplom.core.HasCompany;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,7 @@ public class Customer implements HasCompany {
             message = "Некорректный формат телефона")
     private String phone;
 
+    @InstanceName
     @Column(name = "FIRST_NAME", nullable = false)
     @NotNull
     private String firstName;

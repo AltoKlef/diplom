@@ -6,6 +6,7 @@ import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,11 @@ public class LoyaltyLevel {
     @Column(name = "ID", nullable = false)
     @Id
     private UUID id;
+
+    @NotNull
+    @InstanceName
+    @Column(name = "NAME")
+    private String name;
 
     @PositiveOrZero
     @Column(name = "DISCOUNT", nullable = false, precision = 19, scale = 2)

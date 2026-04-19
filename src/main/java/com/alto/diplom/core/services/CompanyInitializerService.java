@@ -42,6 +42,7 @@ public class CompanyInitializerService {
         level.setMarkspendRate(CompanyDefaults.DEFAULT_MARK_SPEND);
         level.setLoyaltyProgramConfig(config);
         level.setNumber(CompanyDefaults.DEFAULT_LEVEL_NUMBER);
+        level.setName(CompanyDefaults.DEFAULT_LEVEL_NAME);
 
         dataManager.save(config, level);
     }

@@ -11,6 +11,7 @@
         <item view="LoyaltyProgramConfig.list"
               title="msg://com.alto.diplom.view.loyaltyprogramconfig/loyaltyProgramConfigListView.title"/>
         <item view="ItemGroup.list" title="msg://com.alto.diplom.view.itemgroup/itemGroupListView.title"/>
+        <item view="Transaction_.list" title="msg://com.alto.diplom.view.transaction/transactionListView.title"/>
     </menu>
 
 </menu-config>

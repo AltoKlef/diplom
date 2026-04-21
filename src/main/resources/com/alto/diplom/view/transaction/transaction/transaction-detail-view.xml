@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://transactionDetailView.title"
+      focusComponent="form">
+    <data>
+        <instance id="transactionDc"
+                  class="com.alto.diplom.entity.transactions.Transaction">
+            <fetchPlan extends="_base">
+                <property name="items" fetchPlan="_base">
+                    <property name="item" fetchPlan="_base"/>
+                </property>
+            </fetchPlan>
+            <loader id="transactionDl"/>
+            <collection id="itemsDc" property="items"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+    <layout>
+        <formLayout id="form" dataContainer="transactionDc">
+            <responsiveSteps>
+                <responsiveStep minWidth="0" columns="1"/>
+                <responsiveStep minWidth="40em" columns="2"/>
+            </responsiveSteps>
+            <textField id="externalNumberField" property="externalNumber"/>
+            <textField id="totalAmountField" property="totalAmount"/>
+            <textField id="marksEarnedField" property="marksEarned"/>
+            <textField id="marksSpentField" property="marksSpent"/>
+            <dateTimePicker id="externalTransactionTimestampField" property="externalTransactionTimestamp"/>
+            <checkbox id="isNeedToActivateField" property="isNeedToActivate"/>
+            <dateTimePicker id="timeActivateField" property="timeActivate"/>
+        </formLayout>
+        <h4 text="msg://com.alto.diplom.entity.transactions/Transaction.items"/>
+        <hbox id="itemsButtonsPanel" classNames="buttons-panel">
+            <button action="itemsDataGrid.createAction"/>
+            <button action="itemsDataGrid.editAction"/>
+            <button action="itemsDataGrid.removeAction"/>
+        </hbox>
+        <dataGrid id="itemsDataGrid" dataContainer="itemsDc" width="100%" minHeight="20em">
+            <actions>
+                <action id="createAction" type="list_create">
+                    <properties>
+                        <property name="openMode" value="DIALOG"/>
+                    </properties>
+                </action>
+                <action id="editAction" type="list_edit">
+                    <properties>
+                        <property name="openMode" value="DIALOG"/>
+                    </properties>
+                </action>
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+            <columns>
+                <column property="quantity"/>
+                <column property="price"/>
+                <column property="totalSum"/>
+                <column property="marksEarned"/>
+                <column property="marksSpent"/>
+                <column property="discount"/>
+                <column property="item"/>
+            </columns>
+        </dataGrid>
+        <hbox id="detailActions">
+            <button id="saveAndCloseButton" action="saveCloseAction"/>
+            <button id="closeButton" action="closeAction"/>
+        </hbox>
+    </layout>
+</view>

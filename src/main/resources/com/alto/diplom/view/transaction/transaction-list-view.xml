@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
+      title="msg://transactionListView.title"
+      focusComponent="transactionsDataGrid">
+    <data>
+        <collection id="transactionsDc"
+                    class="com.alto.diplom.entity.transactions.Transaction">
+            <fetchPlan extends="_base">
+                <property name="customer" fetchPlan="_instance_name"/>
+                <property name="company" fetchPlan="_instance_name"/>
+                <property name="items" fetchPlan="_base"/>
+                <property name="initialTransaction" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="transactionsDl" readOnly="true"/>
+        </collection>
+        <instance id="transactionDc"
+                  class="com.alto.diplom.entity.transactions.Transaction">
+            <fetchPlan extends="_base">
+                <property name="customer" fetchPlan="_base"/>
+                <property name="company" fetchPlan="_base"/>
+                <property name="items" fetchPlan="_base"/>
+                <property name="initialTransaction" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="transactionDl"/>
+            <collection id="itemsDc" property="items"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout padding="false">
+        <formLayout id="layoutWrapper" classNames="master-detail-layout" height="100%">
+            <vbox id="listLayout" height="100%">
+                <genericFilter id="genericFilter"
+                               dataLoader="transactionsDl">
+                    <properties include=".*"/>
+                </genericFilter>
+                <hbox id="buttonsPanel" classNames="buttons-panel">
+                    <startSlot>
+                        <button id="createButton" action="transactionsDataGrid.createAction"/>
+                        <button id="editButton" action="transactionsDataGrid.editAction"/>
+                        <button id="removeButton" action="transactionsDataGrid.removeAction"/>
+                    </startSlot>
+                    <endSlot>
+                        <simplePagination id="pagination" dataLoader="transactionsDl"/>
+                    </endSlot>
+                </hbox>
+                <dataGrid id="transactionsDataGrid"
+                          width="100%"
+                          minHeight="20em"
+                          dataContainer="transactionsDc"
+                          columnReorderingAllowed="true">
+                    <actions>
+                        <action id="createAction" type="list_create"/>
+                        <action id="editAction" type="list_edit"/>
+                        <action id="removeAction" type="list_remove"/>
+                    </actions>
+                    <columns resizable="true">
+                        <column property="customer"/>
+                        <column property="externalNumber"/>
+                        <column property="company"/>
+                        <column property="totalAmount"/>
+                        <column property="marksEarned"/>
+                        <column property="marksSpent"/>
+                        <column property="externalTransactionTimestamp"/>
+                        <column property="initialTransaction"/>
+                        <column property="isNeedToActivate"/>
+                        <column property="timeActivate"/>
+                    </columns>
+                </dataGrid>
+                <hbox id="lookupActions" visible="false">
+                    <button id="selectButton" action="selectAction"/>
+                    <button id="discardButton" action="discardAction"/>
+                </hbox>
+            </vbox>
+            <vbox id="detailsLayout" height="100%" expand="transactionItemsDataGrid">
+                <h3 text="Состав чека"/>
+                <dataGrid id="transactionItemsDataGrid"
+                          width="100%"
+                          dataContainer="itemsDc">
+                    <columns>
+                        <column property="item"/>
+                        <column property="quantity"/>
+                        <column property="price"/>
+                        <column property="totalSum"/>
+                        <column property="marksEarned"/>
+                        <column property="marksSpent"/>
+                    </columns>
+                </dataGrid>
+            </vbox>
+        </formLayout>
+    </layout>
+</view>

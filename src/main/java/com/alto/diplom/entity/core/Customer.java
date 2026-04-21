@@ -16,6 +16,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.OffsetDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @JmixEntity
@@ -75,6 +76,12 @@ public class Customer implements HasCompany {
     @CreatedDate
     @Column(name = "CREATED_DATE")
     private OffsetDateTime createdDate;
+
+    @JoinTable(name = "CUSTOMER_CUSTOMER_GROUP_LINK",
+            joinColumns = @JoinColumn(name = "CUSTOMER_ID"),
+            inverseJoinColumns = @JoinColumn(name = "CUSTOMER_GROUP_ID"))
+    @ManyToMany
+    private List<CustomerGroup> customerGroups;
 
 
 }

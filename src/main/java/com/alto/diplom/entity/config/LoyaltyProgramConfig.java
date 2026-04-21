@@ -2,6 +2,7 @@ package com.alto.diplom.entity.config;
 
 import com.alto.diplom.core.HasCompany;
 import com.alto.diplom.entity.core.Company;
+import com.alto.diplom.entity.core.CustomerGroup;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
@@ -19,6 +20,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @JmixEntity
@@ -45,6 +47,12 @@ public class LoyaltyProgramConfig implements HasCompany {
     @Column(name = "IS_ACTIVE", nullable = false)
     @NotNull
     private Boolean isActive = false;
+
+    @JoinTable(name = "LOYALTY_CONFIG_CUSTOMER_GROUP_LINK",
+            joinColumns = @JoinColumn(name = "LOYALTY_PROGRAM_CONFIG_ID"),
+            inverseJoinColumns = @JoinColumn(name = "CUSTOMER_GROUP_ID"))
+    @ManyToMany
+    private List<CustomerGroup> targetGroups;
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "COMPANY_ID", nullable = false)

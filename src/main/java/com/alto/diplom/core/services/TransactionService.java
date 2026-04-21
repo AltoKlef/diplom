@@ -1,4 +1,4 @@
-package com.alto.diplom.app;
+package com.alto.diplom.core.services;
 
 import com.alto.diplom.entity.core.Customer;
 import com.alto.diplom.entity.transactions.Transaction;

@@ -41,6 +41,6 @@ public interface CompanyIsolationRole {
     void LoyaltyProgramConfigAccountPolicy();
 
     @JpqlRowLevelPolicy(entityClass = Item.class,
-            where = "{E}.itemGroup.company.id = :current_user_company")
+            where = "{E}.itemGroup.company= :current_user_company")
     void itemPolicy();
 }

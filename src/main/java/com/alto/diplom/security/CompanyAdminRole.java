@@ -64,6 +64,6 @@ public interface CompanyAdminRole extends UiMinimalRole {
     void company();
 
     @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list"})
-    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list"})
+    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail"})
     void screens();
 }

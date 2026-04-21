@@ -141,7 +141,6 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
     public void onItemGroupsDcItemChange(final InstanceContainer.ItemChangeEvent<ItemGroup> event) {
         ItemGroup selectedGroup = event.getItem();
         if (selectedGroup != null) {
-            // Заряжаем лоадер товаров выбранной группой
             itemsDl.setParameter("group", selectedGroup);
             itemsDl.load();
         } else {

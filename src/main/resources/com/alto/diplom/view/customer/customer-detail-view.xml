@@ -17,6 +17,7 @@
                 </property>
                 <property name="createdBy"/>
                 <property name="createdDate"/>
+                <property name="customerGroups" fetchPlan="_instance_name"/>
             </fetchPlan>
             <loader id="customerDl"/>
         </instance>
@@ -54,6 +55,7 @@
                     <action id="entityClearAction" type="entity_clear"/>
                 </actions>
             </entityPicker>
+            <span id="groupsListSpan" title="Группы лояльности" classNames="font-bold"/>
             <formLayout dataContainer="bonusAccountDc">
                 <textField property="mark" label="Бонусный баланс" readOnly="false"/>
                 <entityPicker property="loyaltyLevel" label="Уровень лояльности">

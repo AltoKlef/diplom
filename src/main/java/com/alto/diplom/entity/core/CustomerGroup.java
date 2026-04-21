@@ -1,6 +1,7 @@
 package com.alto.diplom.entity.core;
 
 import com.alto.diplom.core.HasCompany;
+import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -22,10 +23,13 @@ public class CustomerGroup implements HasCompany {
     @Id
     private UUID id;
 
-
     @InstanceName
     @Column(name = "NAME")
     private String name;
+
+    @JoinColumn(name = "LOYALTY_CONFIG_ID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private LoyaltyProgramConfig loyaltyConfig;
 
     @JoinColumn(name = "COMPANY_ID", nullable = false)
     @NotNull

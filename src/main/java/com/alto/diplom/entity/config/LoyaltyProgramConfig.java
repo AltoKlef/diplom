@@ -48,11 +48,8 @@ public class LoyaltyProgramConfig implements HasCompany {
     @NotNull
     private Boolean isActive = false;
 
-    @JoinTable(name = "LOYALTY_CONFIG_CUSTOMER_GROUP_LINK",
-            joinColumns = @JoinColumn(name = "LOYALTY_PROGRAM_CONFIG_ID"),
-            inverseJoinColumns = @JoinColumn(name = "CUSTOMER_GROUP_ID"))
-    @ManyToMany
-    private List<CustomerGroup> targetGroups;
+    @OneToMany(mappedBy = "loyaltyConfig")
+    private List<CustomerGroup> groups;
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "COMPANY_ID", nullable = false)

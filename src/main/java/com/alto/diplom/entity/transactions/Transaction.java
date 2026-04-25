@@ -16,6 +16,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,7 +66,7 @@ public class Transaction implements HasCompany {
 
     @Composition
     @OneToMany(mappedBy = "transactionn")
-    private List<TransactionItem> items;
+    private List<TransactionItem> items =new ArrayList<>();
 
     @JoinColumn(name = "INITIAL_TRANSACTION_ID")
     @OneToOne(fetch = FetchType.LAZY)

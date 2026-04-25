@@ -8,7 +8,12 @@
             <fetchPlan extends="_base">
                 <property name="items" fetchPlan="_base">
                     <property name="item" fetchPlan="_base"/>
+                    <property name="transactionn" fetchPlan="_base">
+                        <property name="company" fetchPlan="_base"/>
+                    </property>
                 </property>
+                <property name="company" fetchPlan="_base"/>
+                <property name="customer" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="transactionDl"/>
             <collection id="itemsDc" property="items"/>
@@ -34,10 +39,24 @@
             <dateTimePicker id="externalTransactionTimestampField" property="externalTransactionTimestamp"/>
             <checkbox id="isNeedToActivateField" property="isNeedToActivate"/>
             <dateTimePicker id="timeActivateField" property="timeActivate"/>
+            <entityPicker property="company">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
+            <entityPicker property="customer">
+                <actions>
+                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityClearAction" type="entity_clear"/>
+                </actions>
+            </entityPicker>
         </formLayout>
         <h4 text="msg://com.alto.diplom.entity.transactions/Transaction.items"/>
         <hbox id="itemsButtonsPanel" classNames="buttons-panel">
             <button action="itemsDataGrid.createAction"/>
+            <button id="addFromCatalogBtn" text="Выбрать из каталога" themeNames="primary"/>
+
             <button action="itemsDataGrid.editAction"/>
             <button action="itemsDataGrid.removeAction"/>
         </hbox>
@@ -63,6 +82,7 @@
                 <column property="marksSpent"/>
                 <column property="discount"/>
                 <column property="item"/>
+                <column property="transactionn.company"/>
             </columns>
         </dataGrid>
         <hbox id="detailActions">

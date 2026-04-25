@@ -4,7 +4,6 @@ import com.alto.diplom.entity.items.Item;
 import com.alto.diplom.entity.items.ItemGroup;
 import com.alto.diplom.repository.ItemGroupRepository;
 import com.alto.diplom.view.main.MainView;
-import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -16,25 +15,17 @@ import io.jmix.core.AccessManager;
 import io.jmix.core.EntityStates;
 import io.jmix.core.FetchPlan;
 import io.jmix.core.SaveContext;
-import io.jmix.core.entity.EntityValues;
 import io.jmix.core.repository.JmixDataRepositoryContext;
 import io.jmix.core.validation.group.UiCrossFieldChecks;
 import io.jmix.flowui.UiComponentProperties;
 import io.jmix.flowui.UiViewProperties;
-import io.jmix.flowui.accesscontext.UiEntityAttributeContext;
 import io.jmix.flowui.action.SecuredBaseAction;
 import io.jmix.flowui.component.UiComponentUtils;
 import io.jmix.flowui.component.grid.DataGrid;
 import io.jmix.flowui.component.grid.TreeDataGrid;
 import io.jmix.flowui.component.validation.ValidationErrors;
-import io.jmix.flowui.data.EntityValueSource;
-import io.jmix.flowui.data.SupportsValueSource;
-import io.jmix.flowui.kit.action.Action;
-import io.jmix.flowui.kit.action.ActionPerformedEvent;
-import io.jmix.flowui.kit.component.button.JmixButton;
 import io.jmix.flowui.model.*;
 import io.jmix.flowui.util.OperationResult;
-import io.jmix.flowui.util.UnknownOperationResult;
 import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +37,7 @@ import static io.jmix.flowui.component.delegate.AbstractFieldDelegate.PROPERTY_I
 @Route(value = "item-groups", layout = MainView.class)
 @ViewController(id = "ItemGroup.list")
 @ViewDescriptor(path = "item-group-list-view.xml")
-@LookupComponent("itemGroupsDataGrid")
+@LookupComponent("itemsDataGrid")
 @DialogMode(width = "64em")
 public class ItemGroupListView extends StandardListView<ItemGroup> {
 
@@ -114,6 +105,9 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
     public void onReady(final ReadyEvent event) {
         setupModifiedTracking();
     }
+
+    @ViewComponent
+    private DataGrid<Item> itemsDataGrid;
 
 
 //    @Subscribe("saveButton")

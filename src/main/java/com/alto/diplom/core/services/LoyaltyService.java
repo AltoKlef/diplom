@@ -22,22 +22,28 @@ public class LoyaltyService {
      * Основной метод расчета начисления
      */
     public void calculateAccrual(Transaction transaction) {
+        // Важно: проверяем на null, так как во вьюхе юзер может еще не выбрать клиента
+        if (transaction.getCustomer() == null || transaction.getCompany() == null) return;
+
         CustomerBonusAccount account = accountRepository
                 .findByCustomerAndCompany(transaction.getCustomer(), transaction.getCompany())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElse(null); // Не кидаем ошибку сразу, просто выходим
+
+        if (account == null || account.getLoyaltyLevel() == null) return;
+
         LoyaltyLevel currentLevel = account.getLoyaltyLevel();
-
-        if (currentLevel == null) return;
-
         BigDecimal totalEarned = BigDecimal.ZERO;
 
-        // 2. Итерируемся по позициям чека
-        for (TransactionItem line : transaction.getItems()) {
-            Item item = line.getItem();
+        if (transaction.getItems() == null) return;
 
-            // Проверяем, можно ли на этот товар начислять баллы
-            if (Boolean.TRUE.equals(item.getCanMarkIncrease())) {
-                // Формула: (Цена * Кол-во) * (Процент кэшбека из уровня / 100)
+        for (TransactionItem line : transaction.getItems()) {
+            // Если товар еще не выбран в строке - пропускаем её
+            if (line.getItem() == null || line.getTotalSum() == null) {
+                line.setMarksEarned(BigDecimal.ZERO);
+                continue;
+            }
+
+            if (Boolean.TRUE.equals(line.getItem().getCanMarkIncrease())) {
                 BigDecimal earnedForLine = line.getTotalSum()
                         .multiply(currentLevel.getCashbackRate())
                         .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
@@ -48,9 +54,6 @@ public class LoyaltyService {
                 line.setMarksEarned(BigDecimal.ZERO);
             }
         }
-
-        // 3. Записываем итого в "голову" транзакции
         transaction.setMarksEarned(totalEarned);
     }
-
 }

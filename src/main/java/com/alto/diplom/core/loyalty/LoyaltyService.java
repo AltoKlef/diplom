@@ -4,11 +4,13 @@ import com.alto.diplom.entity.TransactionParameters;
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.entity.core.Customer;
+import com.alto.diplom.entity.core.CustomerGroup;
 import com.alto.diplom.entity.loyalty.CustomerBonusAccount;
 import com.alto.diplom.entity.loyalty.LoyaltyLevel;
 import com.alto.diplom.entity.transactions.Transaction;
 import com.alto.diplom.entity.transactions.TransactionItem;
 import com.alto.diplom.repository.CustomerBonusAccountRepository;
+import com.alto.diplom.repository.LoyaltyLevelRepository;
 import com.alto.diplom.repository.LoyaltyProgramConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class LoyaltyService {
@@ -27,6 +32,9 @@ public class LoyaltyService {
 
     @Autowired
     private LoyaltyProgramConfigRepository loyaltyConfigRepository;
+
+    @Autowired
+    private LoyaltyLevelRepository levelRepository;
 
     /**
      * Основной метод расчета начисления
@@ -91,22 +99,28 @@ public class LoyaltyService {
     }
 
     private LoyaltyProgramConfig findBestConfig(Customer customer, Company company) {
-        List<LoyaltyProgramConfig> configs = loyaltyConfigRepository.findActiveConfigs(company);
+        // 1. Достаем все активные конфиги компании, отсортированные по приоритету
+        List<LoyaltyProgramConfig> activeConfigs = loyaltyConfigRepository.findActiveConfigs(company);
 
-        return configs.stream()
-                .filter(c -> isConfigApplicable(c, customer))
+        // 2. Получаем ID групп клиента
+        Set<UUID> customerGroupIds = customer.getCustomerGroups().stream()
+                .map(CustomerGroup::getId)
+                .collect(Collectors.toSet());
+
+        // 3. Ищем самый приоритетный подходящий
+        return activeConfigs.stream()
+                .filter(config -> {
+                    // Если группа в конфиге не указана (null) — подходит всем
+                    if (config.getCustomerGroup() == null) {
+                        return true;
+                    }
+                    // Иначе проверяем, есть ли эта конкретная группа у клиента
+                    return customerGroupIds.contains(config.getCustomerGroup().getId());
+                })
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Нет подходящего активного конфига"));
+                .orElseThrow(() -> new RuntimeException("Подходящая программа лояльности не найдена"));
     }
 
-    private boolean isConfigApplicable(LoyaltyProgramConfig config, Customer customer) {
-        // Если групп нет — конфиг общий. Если есть — проверяем вхождение клиента.
-        if (config.getGroups() == null || config.getGroups().isEmpty()) {
-            return true;
-        }
-        return config.getGroups().stream()
-                .anyMatch(group -> group.getCustomers().contains(customer));
-    }
 
     private CalculationScenario calculateScenario(Transaction transaction, CustomerBonusAccount account, BigDecimal spendAmount) {
         CalculationScenario scenario = new CalculationScenario();
@@ -185,5 +199,27 @@ public class LoyaltyService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return account.getMark().min(maxLimitByItems);
+    }
+
+    /**
+     * Определяет актуальный уровень и обновляет его в аккаунте, если он изменился.
+     */
+    public LoyaltyLevel syncAndGetActualLevel(CustomerBonusAccount account, LoyaltyProgramConfig config) {
+        BigDecimal spent = account.getEffectiveCash() != null ? account.getEffectiveCash() : BigDecimal.ZERO;
+
+        // Ищем, какой уровень сейчас подходит клиенту по его тратам
+        LoyaltyLevel actualLevel = levelRepository.findApplicableLevels(config, spent).stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("В программе лояльности не настроены уровни"));
+
+        // Если в базе записан другой уровень — обновляем (кэшируем)
+        if (!actualLevel.equals(account.getLoyaltyLevel())) {
+            account.setLoyaltyLevel(actualLevel);
+            // Мы не вызываем dataManager.save(account) здесь,
+            // чтобы не делать лишних транзакций.
+            // Объект обновится, когда мы сохраним всю транзакцию покупки.
+        }
+
+        return actualLevel;
     }
 }

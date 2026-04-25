@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="diplom">
+        <addColumn tableName="LOYALTY_PROGRAM_CONFIG">
+            <column name="CUSTOMER_GROUP_ID" type="UUID"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="2" author="diplom">
+        <addForeignKeyConstraint baseColumnNames="CUSTOMER_GROUP_ID" baseTableName="LOYALTY_PROGRAM_CONFIG"
+                                 constraintName="FK_LOYALTY_PROGRAM_CONFIG_ON_CUSTOMER_GROUP" referencedColumnNames="ID"
+                                 referencedTableName="CUSTOMER_GROUP"/>
+    </changeSet>
+</databaseChangeLog>

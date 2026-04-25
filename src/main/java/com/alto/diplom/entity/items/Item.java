@@ -43,10 +43,10 @@ public class Item {
     private String deletedBy;
 
     @Column(name = "CAN_PAY_BY_MARK")
-    private Boolean canPayByMark;
+    private Boolean canPayByMark = true;
 
     @Column(name = "CAN_MARK_INCREASE")
-    private Boolean canMarkIncrease;
+    private Boolean canMarkIncrease = true;
 
     @JoinColumn(name = "ITEM_GROUP_ID")
     @NotNull

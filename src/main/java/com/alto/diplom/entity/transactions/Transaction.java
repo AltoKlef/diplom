@@ -65,8 +65,8 @@ public class Transaction implements HasCompany {
     private OffsetDateTime externalTransactionTimestamp;
 
     @Composition
-    @OneToMany(mappedBy = "transactionn")
-    private List<TransactionItem> items =new ArrayList<>();
+    @OneToMany(mappedBy = "transactionn", cascade = CascadeType.ALL, orphanRemoval = true) // ДОБАВЬ ЭТО
+    private List<TransactionItem> items = new ArrayList<>();
 
     @JoinColumn(name = "INITIAL_TRANSACTION_ID")
     @OneToOne(fetch = FetchType.LAZY)

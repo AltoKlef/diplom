@@ -1,11 +1,10 @@
 package com.alto.diplom.view.transaction.transaction;
 
-import com.alto.diplom.core.services.LoyaltyService;
+import com.alto.diplom.core.loyalty.LoyaltyService;
 import com.alto.diplom.entity.items.Item;
 import com.alto.diplom.entity.transactions.Transaction;
 import com.alto.diplom.entity.transactions.TransactionItem;
 import com.alto.diplom.repository.TransactionRepository;
-import com.alto.diplom.view.itemgroup.ItemGroupListView;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.router.Route;

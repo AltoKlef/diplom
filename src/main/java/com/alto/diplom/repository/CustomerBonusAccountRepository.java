@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CustomerBonusAccountRepository extends JmixDataRepository<CustomerBonusAccount, UUID> {
-
+    @FetchPlan("_base")
     Optional<CustomerBonusAccount> findByCustomerAndCompany(Customer customer, Company company);
 
     @FetchPlan("_base")

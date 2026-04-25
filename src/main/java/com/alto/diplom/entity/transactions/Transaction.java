@@ -7,6 +7,7 @@ import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
 import io.jmix.core.metamodel.annotation.Composition;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -39,6 +40,7 @@ public class Transaction implements HasCompany {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Customer customer;
 
+    @InstanceName
     @Column(name = "EXTERNAL_NUMBER", nullable = false)
     @NotNull
     private String externalNumber;

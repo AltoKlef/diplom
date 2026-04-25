@@ -33,4 +33,11 @@ public class TransactionDetailView extends StandardDetailView<Transaction> {
         // Make sure they have CascadeType.ALL in @OneToMany annotation.
         return Set.of(repository.save(getEditedEntity()));
     }
+
+    @Subscribe
+    public void onInitEntity(final InitEntityEvent<Transaction> event) {
+        // Генерируем UUID и устанавливаем его в новую сущность
+        String randomUuid = UUID.randomUUID().toString();
+        event.getEntity().setExternalNumber(randomUuid);
+    }
 }

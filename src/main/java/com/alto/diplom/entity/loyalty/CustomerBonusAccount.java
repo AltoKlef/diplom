@@ -6,6 +6,7 @@ import com.alto.diplom.entity.core.Customer;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +21,6 @@ import java.util.UUID;
 
 @JmixEntity
 @Table(name = "CUSTOMER_BONUS_ACCOUNT", indexes = {
-        @Index(name = "IDX_CUSTOMER_BONUS_ACCOUNT_CUSTOMER", columnList = ""),
         @Index(name = "IDX_CUSTOMER_BONUS_ACCOUNT_COMPANY", columnList = "COMPANY_ID"),
         @Index(name = "IDX_CUSTOMER_BONUS_ACCOUNT_LOYALTY_LEVEL", columnList = "LOYALTY_LEVEL_ID")
 })
@@ -33,6 +33,7 @@ public class CustomerBonusAccount implements HasCompany {
     @Id
     private UUID id;
 
+    @InstanceName
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false)
     @NotNull

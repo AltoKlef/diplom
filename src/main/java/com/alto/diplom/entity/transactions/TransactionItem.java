@@ -4,6 +4,7 @@ import com.alto.diplom.entity.items.Item;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
+import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +29,7 @@ public class TransactionItem {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Transaction transactionn;
 
+    @InstanceName
     @OnDeleteInverse(DeletePolicy.UNLINK)
     @JoinColumn(name = "ITEM_ID")
     @ManyToOne(fetch = FetchType.LAZY)

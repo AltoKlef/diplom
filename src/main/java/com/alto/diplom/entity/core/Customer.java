@@ -17,6 +17,7 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @JmixEntity
@@ -81,7 +82,6 @@ public class Customer implements HasCompany {
             joinColumns = @JoinColumn(name = "CUSTOMER_ID"),
             inverseJoinColumns = @JoinColumn(name = "CUSTOMER_GROUP_ID"))
     @ManyToMany
-    private List<CustomerGroup> customerGroups;
-
+    private Set<CustomerGroup> customerGroups;
 
 }

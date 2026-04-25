@@ -4,22 +4,26 @@
       title="msg://customerGroupListView.title"
       focusComponent="customerGroupsDataGrid">
     <data>
-        <collection id="customerGroupsDc"
-                    class="com.alto.diplom.entity.core.CustomerGroup">
+        <collection id="customerGroupsDc" class="com.alto.diplom.entity.core.CustomerGroup">
             <fetchPlan extends="_base">
                 <property name="loyaltyConfig" fetchPlan="_base"/>
                 <property name="company" fetchPlan="_instance_name"/>
             </fetchPlan>
             <loader id="customerGroupsDl" readOnly="true"/>
         </collection>
-        <instance id="customerGroupDc"
-                  class="com.alto.diplom.entity.core.CustomerGroup">
+
+        <instance id="customerGroupDc" class="com.alto.diplom.entity.core.CustomerGroup">
             <fetchPlan extends="_base">
                 <property name="loyaltyConfig" fetchPlan="_base"/>
                 <property name="company" fetchPlan="_instance_name"/>
             </fetchPlan>
             <loader id="customerGroupDl"/>
         </instance>
+
+        <collection id="membersDc" class="com.alto.diplom.entity.core.Customer">
+            <fetchPlan extends="_base"/>
+            <loader id="membersDl"/>
+        </collection>
     </data>
     <facets>
         <dataLoadCoordinator auto="true"/>
@@ -34,66 +38,62 @@
     </actions>
     <layout padding="false">
         <formLayout id="layoutWrapper" classNames="master-detail-layout" height="100%">
+
             <vbox id="listLayout" height="100%">
-                <genericFilter id="genericFilter"
-                               dataLoader="customerGroupsDl">
+                <genericFilter id="genericFilter" dataLoader="customerGroupsDl">
                     <properties include=".*"/>
                 </genericFilter>
                 <hbox id="buttonsPanel" classNames="buttons-panel">
-                    <startSlot>
-                        <button id="createButton" action="customerGroupsDataGrid.createAction"/>
-                        <button id="editButton" action="customerGroupsDataGrid.editAction"/>
-                        <button id="removeButton" action="customerGroupsDataGrid.removeAction"/>
-                    </startSlot>
-                    <endSlot>
-                        <simplePagination id="pagination" dataLoader="customerGroupsDl"/>
-                    </endSlot>
+                    <button id="createButton" action="customerGroupsDataGrid.createAction"/>
+                    <button id="editButton" action="customerGroupsDataGrid.editAction"/>
+                    <button id="removeButton" action="customerGroupsDataGrid.removeAction"/>
+                    <simplePagination id="pagination" dataLoader="customerGroupsDl"/>
                 </hbox>
-                <dataGrid id="customerGroupsDataGrid"
-                          width="100%"
-                          minHeight="20em"
-                          dataContainer="customerGroupsDc"
-                          columnReorderingAllowed="true">
+                <dataGrid id="customerGroupsDataGrid" width="100%" dataContainer="customerGroupsDc">
                     <actions>
                         <action id="createAction" type="list_create"/>
                         <action id="editAction" type="list_edit"/>
                         <action id="removeAction" type="list_remove"/>
                     </actions>
-                    <columns resizable="true">
+                    <columns>
                         <column property="name"/>
                         <column property="loyaltyConfig"/>
                         <column property="company"/>
                     </columns>
                 </dataGrid>
-                <hbox id="lookupActions" visible="false">
-                    <button id="selectButton" action="selectAction"/>
-                    <button id="discardButton" action="discardAction"/>
-                </hbox>
             </vbox>
+
             <vbox id="detailsLayout" height="100%">
-                <formLayout id="form" dataContainer="customerGroupDc">
-                    <responsiveSteps>
-                        <responsiveStep minWidth="0" columns="1"/>
-                        <responsiveStep minWidth="40em" columns="2"/>
-                    </responsiveSteps>
-                    <textField id="nameField" property="name"/>
-                    <entityPicker id="loyaltyConfigField" property="loyaltyConfig">
-                        <actions>
-                            <action id="entityLookupAction" type="entity_lookup"/>
-                            <action id="entityClearAction" type="entity_clear"/>
-                        </actions>
-                    </entityPicker>
-                    <entityPicker id="companyField" property="company">
-                        <actions>
-                            <action id="entityLookupAction" type="entity_lookup"/>
-                            <action id="entityClearAction" type="entity_clear"/>
-                        </actions>
-                    </entityPicker>
-                </formLayout>
-                <hbox id="detailActions">
-                    <button id="saveButton" text="msg:///actions.Save" icon="CHECK" themeNames="primary"/>
-                    <button id="cancelButton" text="msg:///actions.Cancel" icon="BAN"/>
+<!--                <formLayout id="form" dataContainer="customerGroupDc">-->
+<!--                    <textField id="nameField" property="name"/>-->
+<!--                    <entityPicker id="loyaltyConfigField" property="loyaltyConfig">-->
+<!--                        <actions>-->
+<!--                            <action id="entityLookup" type="entity_lookup"/>-->
+<!--                            <action id="entityClear" type="entity_clear"/>-->
+<!--                        </actions>-->
+<!--                    </entityPicker>-->
+<!--                </formLayout>-->
+
+<!--                <hbox id="detailActions" visible="false">-->
+<!--                    <button id="saveButton" text="msg:///actions.Save" icon="CHECK" themeNames="primary"/>-->
+<!--                    <button id="cancelButton" text="msg:///actions.Cancel" icon="BAN"/>-->
+<!--                </hbox>-->
+
+                <hr/> <h4 text="Участники этой группы"/>
+                <hbox id="membersButtonsPanel" classNames="buttons-panel">
+                    <button id="addMemberBtn" text="Добавить" icon="PLUS" themeNames="contrast"/>
+                    <button id="removeMemberBtn" action="membersDataGrid.exclude" text="Исключить"/>
                 </hbox>
+                <dataGrid id="membersDataGrid" dataContainer="membersDc" width="100%" minHeight="20em">
+                    <actions>
+                        <action id="exclude" type="list_exclude"/>
+                    </actions>
+                    <columns>
+                        <column property="firstName"/>
+                        <column property="lastName"/>
+                        <column property="phone"/>
+                    </columns>
+                </dataGrid>
             </vbox>
         </formLayout>
     </layout>

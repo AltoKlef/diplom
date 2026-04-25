@@ -4,6 +4,7 @@ import com.alto.diplom.core.HasCompany;
 //import com.alto.diplom.entity.OnRegisterConfig;
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import com.alto.diplom.entity.core.Customer;
+import com.alto.diplom.entity.core.CustomerGroup;
 import com.alto.diplom.entity.items.Item;
 import com.alto.diplom.entity.items.ItemGroup;
 import com.alto.diplom.entity.loyalty.CustomerBonusAccount;
@@ -39,6 +40,10 @@ public interface CompanyIsolationRole {
     @JpqlRowLevelPolicy(entityClass = LoyaltyProgramConfig.class,
             where = COMPANY_FILTER)
     void LoyaltyProgramConfigAccountPolicy();
+
+    @JpqlRowLevelPolicy(entityClass = CustomerGroup.class,
+            where = COMPANY_FILTER)
+    void CustomerGroupAccountPolicy();
 
     @JpqlRowLevelPolicy(entityClass = Item.class,
             where = "{E}.itemGroup.company= :current_user_company")

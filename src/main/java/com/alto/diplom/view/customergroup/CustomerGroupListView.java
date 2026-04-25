@@ -1,48 +1,26 @@
 package com.alto.diplom.view.customergroup;
 
+import com.alto.diplom.entity.core.Customer;
 import com.alto.diplom.entity.core.CustomerGroup;
 import com.alto.diplom.repository.CustomerGroupRepository;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.HasValidation;
-import com.vaadin.flow.component.HasValueAndElement;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeLeaveEvent;
 import com.vaadin.flow.router.Route;
-import io.jmix.core.AccessManager;
-import io.jmix.core.EntityStates;
+import io.jmix.core.DataManager;
 import io.jmix.core.FetchPlan;
+import io.jmix.core.LoadContext;
 import io.jmix.core.SaveContext;
-import io.jmix.core.entity.EntityValues;
 import io.jmix.core.repository.JmixDataRepositoryContext;
-import io.jmix.core.validation.group.UiCrossFieldChecks;
-import io.jmix.flowui.UiComponentProperties;
-import io.jmix.flowui.UiViewProperties;
-import io.jmix.flowui.accesscontext.UiEntityAttributeContext;
-import io.jmix.flowui.action.SecuredBaseAction;
-import io.jmix.flowui.component.UiComponentUtils;
-import io.jmix.flowui.component.grid.DataGrid;
-import io.jmix.flowui.component.validation.ValidationErrors;
-import io.jmix.flowui.data.EntityValueSource;
-import io.jmix.flowui.data.SupportsValueSource;
-import io.jmix.flowui.kit.action.Action;
-import io.jmix.flowui.kit.action.ActionPerformedEvent;
+import io.jmix.flowui.DialogWindows;
 import io.jmix.flowui.kit.component.button.JmixButton;
 import io.jmix.flowui.model.CollectionContainer;
-import io.jmix.flowui.model.DataContext;
+import io.jmix.flowui.model.CollectionLoader;
 import io.jmix.flowui.model.InstanceContainer;
-import io.jmix.flowui.model.InstanceLoader;
-import io.jmix.flowui.util.OperationResult;
-import io.jmix.flowui.util.UnknownOperationResult;
 import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
-
-import static io.jmix.flowui.component.delegate.AbstractFieldDelegate.PROPERTY_INVALID;
 
 @Route(value = "customer-groups", layout = MainView.class)
 @ViewController(id = "CustomerGroup.list")
@@ -54,8 +32,8 @@ public class CustomerGroupListView extends StandardListView<CustomerGroup> {
     @Autowired
     private CustomerGroupRepository repository;
 
-    @ViewComponent
-    private DataContext dataContext;
+    @Autowired
+    private DataManager dataManager;
 
     @ViewComponent
     private CollectionContainer<CustomerGroup> customerGroupsDc;
@@ -64,289 +42,44 @@ public class CustomerGroupListView extends StandardListView<CustomerGroup> {
     private InstanceContainer<CustomerGroup> customerGroupDc;
 
     @ViewComponent
-    private InstanceLoader<CustomerGroup> customerGroupDl;
+    private CollectionLoader<Customer> membersDl;
 
-    @ViewComponent
-    private VerticalLayout listLayout;
+    /**
+     * Делегат загрузки участников.
+     * Срабатывает каждый раз, когда мы вызываем membersDl.load()
+     */
+    @Install(to = "membersDl", target = Target.DATA_LOADER)
+    protected List<Customer> membersDlLoadDelegate(final LoadContext<Customer> loadContext) {
+        CustomerGroup selectedGroup = customerGroupDc.getItemOrNull();
 
-    @ViewComponent
-    private DataGrid<CustomerGroup> customerGroupsDataGrid;
-
-    @ViewComponent
-    private FormLayout form;
-
-    @ViewComponent
-    private HorizontalLayout detailActions;
-
-    @Autowired
-    private AccessManager accessManager;
-
-    @Autowired
-    private EntityStates entityStates;
-
-    @Autowired
-    private UiViewProperties uiViewProperties;
-
-    @Autowired
-    private ViewValidation viewValidation;
-
-    @Autowired
-    private UiComponentProperties uiComponentProperties;
-
-    private boolean modifiedAfterEdit;
-
-    @Subscribe
-    public void onInit(final InitEvent event) {
-        customerGroupsDataGrid.getActions().forEach(action -> {
-            if (action instanceof SecuredBaseAction secured) {
-                secured.addEnabledRule(() -> listLayout.isEnabled());
-            }
-        });
-    }
-
-    @Subscribe
-    public void onReady(final ReadyEvent event) {
-        setupModifiedTracking();
-    }
-
-    @Subscribe
-    public void onBeforeShow(final BeforeShowEvent event) {
-        updateControls(false);
-    }
-
-    @Subscribe
-    private void onBeforeClose(final BeforeCloseEvent event) {
-        preventUnsavedChanges(event);
-    }
-
-    @Subscribe("customerGroupsDataGrid.createAction")
-    public void onCustomerGroupsDataGridCreateAction(final ActionPerformedEvent event) {
-        prepareFormForValidation();
-
-        dataContext.clear();
-        CustomerGroup entity = dataContext.create(CustomerGroup.class);
-        customerGroupDc.setItem(entity);
-        updateControls(true);
-    }
-
-    @Subscribe("customerGroupsDataGrid.editAction")
-    public void onCustomerGroupsDataGridEditAction(final ActionPerformedEvent event) {
-        updateControls(true);
-    }
-
-    @Subscribe("saveButton")
-    public void onSaveButtonClick(final ClickEvent<JmixButton> event) {
-        saveEditedEntity();
-    }
-
-    @Subscribe("cancelButton")
-    public void onCancelButtonClick(final ClickEvent<JmixButton> event) {
-        if (!hasUnsavedChanges()) {
-            discardEditedEntity();
-            return;
+        if (selectedGroup == null) {
+            return Collections.emptyList();
         }
 
-        if (uiViewProperties.isUseSaveConfirmation()) {
-            viewValidation.showSaveConfirmationDialog(this)
-                    .onSave(this::saveEditedEntity)
-                    .onDiscard(this::discardEditedEntity);
-        } else {
-            viewValidation.showUnsavedChangesDialog(this)
-                    .onDiscard(this::discardEditedEntity);
-        }
+        // Запрос участников через Many-to-Many связь
+        return dataManager.load(Customer.class)
+                .query("select e from Customer e join e.customerGroups g where g = :group")
+                .parameter("group", selectedGroup)
+                .list();
     }
 
+    /**
+     * Обработчик смены выбранной группы в таблице.
+     */
     @Subscribe(id = "customerGroupsDc", target = Target.DATA_CONTAINER)
     public void onCustomerGroupsDcItemChange(final InstanceContainer.ItemChangeEvent<CustomerGroup> event) {
-        prepareFormForValidation();
-
         CustomerGroup entity = event.getItem();
-        dataContext.clear();
+
         if (entity != null) {
-            customerGroupDl.setEntityId(EntityValues.getId(entity));
-            customerGroupDl.load();
+            // Кладём выбранную группу в инстанс-контейнер, чтобы сработал лоадер участников
+            customerGroupDc.setItem(entity);
+            membersDl.load();
         } else {
-            customerGroupDl.setEntityId(null);
             customerGroupDc.setItem(null);
         }
-        updateControls(false);
     }
 
-    private void prepareFormForValidation() {
-        // all components shouldn't be readonly due to validation passing correctly
-        UiComponentUtils.getComponents(form).forEach(component -> {
-            if (component instanceof HasValueAndElement<?, ?> field) {
-                field.setReadOnly(false);
-            }
-        });
-    }
-
-    private OperationResult saveEditedEntity() {
-        CustomerGroup item = customerGroupDc.getItem();
-        ValidationErrors validationErrors = validateView(item);
-
-        if (!validationErrors.isEmpty()) {
-            viewValidation.showValidationErrors(validationErrors);
-            viewValidation.focusProblemComponent(validationErrors);
-            return OperationResult.fail();
-        }
-
-        dataContext.save();
-        customerGroupsDc.replaceItem(item);
-        updateControls(false);
-        return OperationResult.success();
-    }
-
-    private void discardEditedEntity() {
-        resetFormInvalidState();
-
-        dataContext.clear();
-        customerGroupDc.setItem(null);
-        customerGroupDl.load();
-        updateControls(false);
-    }
-
-    private void resetFormInvalidState() {
-        UiComponentUtils.getComponents(form).forEach(component -> {
-            if (component instanceof HasValidation hasValidation && hasValidation.isInvalid()) {
-                component.getElement().setProperty(PROPERTY_INVALID, false);
-                component.getElement().executeJs("this.invalid = $0", false);
-            }
-        });
-    }
-
-    private ValidationErrors validateView(CustomerGroup entity) {
-        ValidationErrors validationErrors = viewValidation.validateUiComponents(form);
-        if (!validationErrors.isEmpty()) {
-            return validationErrors;
-        }
-        validationErrors.addAll(viewValidation.validateBeanGroup(UiCrossFieldChecks.class, entity));
-        return validationErrors;
-    }
-
-    private void updateControls(boolean editing) {
-        UiComponentUtils.getComponents(form).forEach(component -> {
-            if (component instanceof SupportsValueSource<?> valueSourceComponent
-                    && valueSourceComponent.getValueSource() instanceof EntityValueSource<?, ?> entityValueSource
-                    && component instanceof HasValueAndElement<?, ?> field) {
-                field.setReadOnly(!editing || !isUpdatePermitted(entityValueSource));
-            }
-        });
-
-        modifiedAfterEdit = false;
-        detailActions.setVisible(editing);
-        listLayout.setEnabled(!editing);
-        customerGroupsDataGrid.getActions().forEach(Action::refreshState);
-
-        if (!uiComponentProperties.isImmediateRequiredValidationEnabled() && editing) {
-            resetFormInvalidState();
-        }
-    }
-
-    private boolean isUpdatePermitted(EntityValueSource<?, ?> valueSource) {
-        UiEntityAttributeContext context = new UiEntityAttributeContext(valueSource.getMetaPropertyPath());
-        accessManager.applyRegisteredConstraints(context);
-        return context.canModify();
-    }
-
-    private boolean hasUnsavedChanges() {
-        for (Object modified : dataContext.getModified()) {
-            if (!entityStates.isNew(modified)) {
-                return true;
-            }
-        }
-
-        return modifiedAfterEdit;
-    }
-
-    private void setupModifiedTracking() {
-        dataContext.addChangeListener(this::onChangeEvent);
-        dataContext.addPostSaveListener(this::onPostSaveEvent);
-    }
-
-    private void onChangeEvent(DataContext.ChangeEvent changeEvent) {
-        modifiedAfterEdit = true;
-    }
-
-    private void onPostSaveEvent(DataContext.PostSaveEvent postSaveEvent) {
-        modifiedAfterEdit = false;
-    }
-
-    private void preventUnsavedChanges(BeforeCloseEvent event) {
-        CloseAction closeAction = event.getCloseAction();
-
-        if (closeAction instanceof ChangeTrackerCloseAction trackerCloseAction
-                && trackerCloseAction.isCheckForUnsavedChanges()
-                && hasUnsavedChanges()) {
-            UnknownOperationResult result = new UnknownOperationResult();
-
-            if (closeAction instanceof NavigateCloseAction navigateCloseAction) {
-                BeforeLeaveEvent beforeLeaveEvent = navigateCloseAction.getBeforeLeaveEvent();
-                BeforeLeaveEvent.ContinueNavigationAction navigationAction = beforeLeaveEvent.postpone();
-
-                if (uiViewProperties.isUseSaveConfirmation()) {
-                    viewValidation.showSaveConfirmationDialog(this)
-                            .onSave(() -> result.resume(navigateWithSave(navigationAction)))
-                            .onDiscard(() -> result.resume(navigateWithDiscard(navigationAction)))
-                            .onCancel(() -> {
-                                result.otherwise(() -> cancelNavigation(navigationAction));
-                                result.fail();
-                            });
-                } else {
-                    viewValidation.showUnsavedChangesDialog(this)
-                            .onDiscard(() -> result.resume(navigateWithDiscard(navigationAction)))
-                            .onCancel(() -> {
-                                result.otherwise(() -> cancelNavigation(navigationAction));
-                                result.fail();
-                            });
-                }
-            } else {
-                if (uiViewProperties.isUseSaveConfirmation()) {
-                    viewValidation.showSaveConfirmationDialog(this)
-                            .onSave(() -> result.resume(closeWithSave()))
-                            .onDiscard(() -> result.resume(closeWithDiscard()))
-                            .onCancel(result::fail);
-                } else {
-                    viewValidation.showUnsavedChangesDialog(this)
-                            .onDiscard(() -> result.resume(closeWithDiscard()))
-                            .onCancel(result::fail);
-                }
-            }
-
-            event.preventClose(result);
-        }
-    }
-
-    private OperationResult navigateWithDiscard(BeforeLeaveEvent.ContinueNavigationAction navigationAction) {
-        return navigate(navigationAction, StandardOutcome.DISCARD.getCloseAction());
-    }
-
-    private OperationResult navigateWithSave(BeforeLeaveEvent.ContinueNavigationAction navigationAction) {
-        return saveEditedEntity()
-                .compose(() -> navigate(navigationAction, StandardOutcome.SAVE.getCloseAction()));
-    }
-
-    private void cancelNavigation(BeforeLeaveEvent.ContinueNavigationAction navigationAction) {
-        // Because of using React Router, we need to call
-        // 'BeforeLeaveEvent.ContinueNavigationAction.cancel'
-        // explicitly, otherwise navigation process hangs
-        navigationAction.cancel();
-    }
-
-    private OperationResult navigate(BeforeLeaveEvent.ContinueNavigationAction navigationAction,
-                                     CloseAction closeAction) {
-        navigationAction.proceed();
-
-        AfterCloseEvent afterCloseEvent = new AfterCloseEvent(this, closeAction);
-        fireEvent(afterCloseEvent);
-
-        return OperationResult.success();
-    }
-
-    private OperationResult closeWithSave() {
-        return saveEditedEntity()
-                .compose(() -> close(StandardOutcome.SAVE));
-    }
+    // === ДЕЛЕГАТЫ РЕПОЗИТОРИЯ ДЛЯ ГЛАВНОЙ ТАБЛИЦЫ ===
 
     @Install(to = "customerGroupsDl", target = Target.DATA_LOADER, subject = "loadFromRepositoryDelegate")
     private List<CustomerGroup> listLoadDelegate(Pageable pageable, JmixDataRepositoryContext context) {
@@ -363,13 +96,50 @@ public class CustomerGroupListView extends StandardListView<CustomerGroup> {
         repository.deleteAll(collection);
     }
 
-    @Install(to = "customerGroupDl", target = Target.DATA_LOADER, subject = "loadFromRepositoryDelegate")
-    private Optional<CustomerGroup> detailLoadDelegate(UUID id, FetchPlan fetchPlan) {
-        return repository.findById(id, fetchPlan);
+    @Autowired
+    private DialogWindows dialogWindows;
+
+    @Subscribe("addMemberBtn")
+    public void onAddMemberBtnClick(final ClickEvent<JmixButton> event) {
+        CustomerGroup selectedGroup = customerGroupDc.getItemOrNull();
+        if (selectedGroup == null) return;
+
+        // Используем базовый диалог выбора
+        dialogWindows.lookup(this, Customer.class)
+                .withSelectHandler(customers -> {
+                    addCustomersToGroup(customers, selectedGroup);
+                })
+                .build()
+                .open();
     }
 
-    @Install(target = Target.DATA_CONTEXT)
-    private Set<Object> saveDelegate(SaveContext saveContext) {
-        return Set.of(repository.save(customerGroupDc.getItem()));
+    private void addCustomersToGroup(Collection<Customer> customers, CustomerGroup group) {
+        SaveContext saveContext = new SaveContext();
+
+        for (Customer customer : customers) {
+            // Подгружаем клиента со связями, чтобы не затереть существующие
+            Customer fullCustomer = dataManager.load(Customer.class)
+                    .id(customer.getId())
+                    .fetchPlan(fp -> fp.add("customerGroups", FetchPlan.BASE))
+                    .one();
+
+            Set<CustomerGroup> groups = new HashSet<>(fullCustomer.getCustomerGroups() != null
+                    ? fullCustomer.getCustomerGroups()
+                    : Collections.emptySet());
+
+            if (!groups.contains(group)) {
+                groups.add(group);
+
+                fullCustomer.setCustomerGroups(groups);
+
+                saveContext.saving(fullCustomer);
+            }
+        }
+
+        // Сохраняем всех пачкой (транзакционно)
+        dataManager.save(saveContext);
+
+        // Обновляем таблицу участников
+        membersDl.load();
     }
 }

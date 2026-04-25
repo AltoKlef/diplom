@@ -1,21 +1,18 @@
 package com.alto.diplom.entity.config;
-import io.jmix.core.entity.annotation.JmixGeneratedValue;
-import io.jmix.core.metamodel.annotation.JmixEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.util.UUID;
+
 import com.alto.diplom.entity.core.Company;
 import io.jmix.core.DeletePolicy;
+import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
+import io.jmix.core.metamodel.annotation.InstanceName;
+import io.jmix.core.metamodel.annotation.JmixEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import jakarta.persistence.Index;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @JmixEntity
 @Table(name = "ON_REGISTER_CONFIG", indexes = {
@@ -40,6 +37,7 @@ public class OnRegisterConfig {
     @NotNull
     private Boolean isActive = false;
 
+    @InstanceName
     @Column(name = "MARK_INCREASE", precision = 19, scale = 2)
     private BigDecimal markIncrease; // Сумма приветственных баллов
 

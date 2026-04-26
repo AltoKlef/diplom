@@ -1,8 +1,10 @@
 package com.alto.diplom.security;
 
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
+import com.alto.diplom.entity.config.OnRegisterConfig;
 import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.entity.core.Customer;
+import com.alto.diplom.entity.core.CustomerGroup;
 import com.alto.diplom.entity.core.User;
 import com.alto.diplom.entity.items.Item;
 import com.alto.diplom.entity.items.ItemGroup;
@@ -63,7 +65,13 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityAttributePolicy(entityClass = Company.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
     void company();
 
-    @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list"})
-    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail"})
+    @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "Transaction_.list", "CustomerGroup.list"})
+    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail", "Transaction_.list", "CustomerGroup.list", "CustomerGroup.detail", "Transaction_.detail", "TransactionItem.detail"})
     void screens();
+
+    @EntityPolicy(entityClass = CustomerGroup.class, actions = EntityPolicyAction.ALL)
+    void customerGroup();
+
+    @EntityPolicy(entityClass = OnRegisterConfig.class, actions = EntityPolicyAction.ALL)
+    void onRegisterConfig();
 }

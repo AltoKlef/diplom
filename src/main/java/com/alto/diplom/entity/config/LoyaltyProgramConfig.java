@@ -44,7 +44,7 @@ public class LoyaltyProgramConfig implements HasCompany {
 
     @Column(name = "PRIORITY", nullable = false)
     @NotNull
-    private Integer priority;
+    private Integer priority = 0;
 
     @Column(name = "IS_ACTIVE", nullable = false)
     @NotNull

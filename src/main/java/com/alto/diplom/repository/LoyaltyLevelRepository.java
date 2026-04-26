@@ -18,7 +18,7 @@ public interface LoyaltyLevelRepository extends JmixDataRepository<LoyaltyLevel,
             "where l.loyaltyProgramConfig.company = :company " +
             "and l.loyaltyProgramConfig.isActive = true " +
             "and l.requiredSum = 0 " + // Уровень для новичков
-            "order by l.loyaltyProgramConfig.priority desc")
+            "order by l.loyaltyProgramConfig.priority ASC")
     Optional<LoyaltyLevel> findDefaultLevel(Company company);
 
     @Query("select l from LoyaltyLevel l " +

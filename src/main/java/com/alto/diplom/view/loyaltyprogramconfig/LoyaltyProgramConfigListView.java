@@ -1,10 +1,14 @@
 package com.alto.diplom.view.loyaltyprogramconfig;
 
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
+import com.alto.diplom.entity.loyalty.LoyaltyLevel;
 import com.alto.diplom.repository.LoyaltyProgramConfigRepository;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.repository.JmixDataRepositoryContext;
+import io.jmix.flowui.component.grid.DataGrid;
+import io.jmix.flowui.model.CollectionContainer;
+import io.jmix.flowui.model.InstanceContainer;
 import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -22,18 +26,42 @@ public class LoyaltyProgramConfigListView extends StandardListView<LoyaltyProgra
     @Autowired
     private LoyaltyProgramConfigRepository repository;
 
-    @Install(to = "loyaltyProgramConfigsDl", target = Target.DATA_LOADER, subject = "loadFromRepositoryDelegate")
-    private List<LoyaltyProgramConfig> loadDelegate(Pageable pageable, JmixDataRepositoryContext context) {
-        return repository.findAllSlice(pageable, context).getContent();
-    }
+    @ViewComponent
+    private InstanceContainer<LoyaltyProgramConfig> loyaltyProgramConfigDc;
 
-    @Install(to = "loyaltyProgramConfigsDataGrid.removeAction", subject = "delegate")
+    @ViewComponent
+    private CollectionContainer<LoyaltyLevel> levelsDc; // Нужно для расчета номера и доступа к данным
+
+    @ViewComponent
+    private DataGrid<LoyaltyProgramConfig> loyaltyProgramConfigsDataGrid; // Для получения выбранного элемента
+
+    @Install(to = "loyaltyProgramConfigsDataGrid.remove", subject = "delegate")
     private void loyaltyProgramConfigsDataGridRemoveDelegate(final Collection<LoyaltyProgramConfig> collection) {
         repository.deleteAll(collection);
     }
 
-    @Install(to = "pagination", subject = "totalCountByRepositoryDelegate")
-    private Long paginationTotalCountByRepositoryDelegate(final JmixDataRepositoryContext context) {
-        return repository.count(context);
+    @Subscribe(id = "loyaltyProgramConfigsDc", target = Target.DATA_CONTAINER)
+    public void onLoyaltyProgramConfigsDcItemChange(final InstanceContainer.ItemChangeEvent<LoyaltyProgramConfig> event) {
+        // Устанавливаем выбранный элемент в "одиночный" контейнер.
+        // Это заставляет вложенный levelsDc обновить список уровней.
+        loyaltyProgramConfigDc.setItem(event.getItem());
+    }
+
+    @Install(to = "levelsDataGrid.create", subject = "initializer")
+    private void levelsDataGridCreateInitializer(final LoyaltyLevel loyaltyLevel) {
+        // Берем программу, выбранную в левой таблице
+        LoyaltyProgramConfig selectedConfig = loyaltyProgramConfigsDataGrid.getSingleSelectedItem();
+
+        if (selectedConfig != null) {
+            // Привязываем новый уровень к этой программе
+            loyaltyLevel.setLoyaltyProgramConfig(selectedConfig);
+
+            // Автоматически ставим следующий номер (например, 1, 2, 3...)
+            int nextNumber = levelsDc.getItems().size() + 1;
+            loyaltyLevel.setNumber((short) nextNumber);
+
+            // Если в LoyaltyLevel есть поле company, проставляем его из родителя
+            // loyaltyLevel.setCompany(selectedConfig.getCompany());
+        }
     }
 }

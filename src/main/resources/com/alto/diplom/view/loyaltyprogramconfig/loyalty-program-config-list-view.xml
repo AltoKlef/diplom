@@ -4,63 +4,83 @@
       title="msg://loyaltyProgramConfigListView.title"
       focusComponent="loyaltyProgramConfigsDataGrid">
     <data>
-        <collection id="loyaltyProgramConfigsDc"
-                    class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
+        <collection id="loyaltyProgramConfigsDc" class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
             <fetchPlan extends="_base">
-                <property name="company" fetchPlan="_base">
-                    <property name="id"/>
-                </property>
+                <property name="levels" fetchPlan="_base"/>
+                <property name="company" fetchPlan="_instance_name"/>
             </fetchPlan>
-            <loader id="loyaltyProgramConfigsDl" readOnly="true"/>
+            <loader id="loyaltyProgramConfigsDl"/>
         </collection>
+
+        <instance id="loyaltyProgramConfigDc"
+                  class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
+            <fetchPlan extends="_base">
+                <property name="levels" fetchPlan="_base"/>
+            </fetchPlan>
+
+            <collection id="levelsDc" property="levels"/>
+        </instance>
     </data>
-    <facets>
-        <dataLoadCoordinator auto="true"/>
-        <urlQueryParameters>
-            <genericFilter component="genericFilter"/>
-            <pagination component="pagination"/>
-        </urlQueryParameters>
-    </facets>
     <actions>
         <action id="selectAction" type="lookup_select"/>
         <action id="discardAction" type="lookup_discard"/>
     </actions>
-    <layout>
-        <genericFilter id="genericFilter"
-                       dataLoader="loyaltyProgramConfigsDl">
-            <properties include=".*"/>
-        </genericFilter>
-        <hbox id="buttonsPanel" classNames="buttons-panel">
-            <startSlot>
-                <button id="createButton" action="loyaltyProgramConfigsDataGrid.createAction"/>
-                <button id="editButton" action="loyaltyProgramConfigsDataGrid.editAction"/>
-                <button id="removeButton" action="loyaltyProgramConfigsDataGrid.removeAction"/>
-            </startSlot>
-            <endSlot>
-                <simplePagination id="pagination" dataLoader="loyaltyProgramConfigsDl"/>
-            </endSlot>
-        </hbox>
-        <dataGrid id="loyaltyProgramConfigsDataGrid"
-                  width="100%"
-                  minHeight="20em"
-                  dataContainer="loyaltyProgramConfigsDc"
-                  columnReorderingAllowed="true">
-            <actions>
-                <action id="createAction" type="list_create"/>
-                <action id="editAction" type="list_edit"/>
-                <action id="removeAction" type="list_remove"/>
-            </actions>
-            <columns resizable="true">
-                <column property="name"/>
-                <column property="priority"/>
-                <column property="isActive"/>
-                <column property="company"/>
-                <column property="company.id"/>
-            </columns>
-        </dataGrid>
-        <hbox id="lookupActions" visible="false">
-            <button id="selectButton" action="selectAction"/>
-            <button id="discardButton" action="discardAction"/>
-        </hbox>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <layout padding="false">
+        <split width="100%" height="100%" orientation="HORIZONTAL" splitterPosition="40">
+
+            <vbox id="lookupBox" height="100%" padding="true" spacing="true" expand="loyaltyProgramConfigsDataGrid">
+                <genericFilter id="genericFilter" dataLoader="loyaltyProgramConfigsDl">
+                    <properties include=".*"/>
+                </genericFilter>
+                <hbox classNames="buttons-panel">
+                    <button action="loyaltyProgramConfigsDataGrid.create"/>
+                    <button action="loyaltyProgramConfigsDataGrid.edit"/>
+                    <button action="loyaltyProgramConfigsDataGrid.remove"/>
+                </hbox>
+                <dataGrid id="loyaltyProgramConfigsDataGrid"
+                          width="100%"
+                          dataContainer="loyaltyProgramConfigsDc">
+                    <actions>
+                        <action id="create" type="list_create"/>
+                        <action id="edit" type="list_edit"/>
+                        <action id="remove" type="list_remove"/>
+                    </actions>
+                    <columns>
+                        <column property="name"/>
+                        <column property="isActive"/>
+                    </columns>
+                </dataGrid>
+            </vbox>
+
+            <vbox id="detailsBox" height="100%" padding="true" spacing="true" expand="levelsDataGrid">
+                <h3 text="Уровни лояльности" classNames="font-bold text-xl"/>
+                <hbox classNames="buttons-panel">
+                    <button action="levelsDataGrid.create"/>
+                    <button action="levelsDataGrid.edit"/>
+                    <button action="levelsDataGrid.remove"/>
+                </hbox>
+                <dataGrid id="levelsDataGrid"
+                          width="100%"
+                          dataContainer="levelsDc">
+                    <actions>
+                        <action id="create" type="list_create">
+                            <properties>
+                                <property name="openMode" value="DIALOG"/>
+                            </properties>
+                        </action>
+                        <action id="edit" type="list_edit"/>
+                        <action id="remove" type="list_remove"/>
+                    </actions>
+                    <columns>
+                        <column property="number"/>
+                        <column property="name"/>
+                        <column property="discount"/>
+                    </columns>
+                </dataGrid>
+            </vbox>
+        </split>
     </layout>
 </view>

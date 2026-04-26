@@ -12,117 +12,99 @@ import com.alto.diplom.entity.transactions.TransactionItem;
 import com.alto.diplom.repository.CustomerBonusAccountRepository;
 import com.alto.diplom.repository.LoyaltyLevelRepository;
 import com.alto.diplom.repository.LoyaltyProgramConfigRepository;
+import io.jmix.core.DataManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.alto.diplom.entity.TransactionParameters.CalculationScenario;
 import com.alto.diplom.entity.TransactionParameters.ItemResult;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+// ... остальные импорты
 
 @Service
 public class LoyaltyService {
 
+    private static final Logger log = LoggerFactory.getLogger(LoyaltyService.class);
+
     @Autowired
     private CustomerBonusAccountRepository accountRepository;
-
     @Autowired
     private LoyaltyProgramConfigRepository loyaltyConfigRepository;
-
     @Autowired
     private LoyaltyLevelRepository levelRepository;
+    @Autowired
+    private DataManager dataManager;
 
     /**
-     * Основной метод расчета начисления
+     * Основной метод для получения всех параметров расчета (сценарии 0 и MAX)
      */
-    public void calculateAccrual(Transaction transaction) {
-        System.out.println(">>> LoyaltyService: Начинаю расчет для транзакции № " + transaction.getExternalNumber());
-        if (transaction.getCustomer() == null || transaction.getCompany() == null) return;
-
-        CustomerBonusAccount account = accountRepository
-                .findByCustomerAndCompany(transaction.getCustomer(), transaction.getCompany())
-                .orElse(null); // Не кидаем ошибку сразу, просто выходим
-
-        if (account == null || account.getLoyaltyLevel() == null) return;
-
-        LoyaltyLevel currentLevel = account.getLoyaltyLevel();
-        BigDecimal totalEarned = BigDecimal.ZERO;
-
-        if (transaction.getItems() == null) return;
-
-        for (TransactionItem line : transaction.getItems()) {
-            // Если товар еще не выбран в строке - пропускаем её
-            if (line.getItem() == null || line.getTotalSum() == null) {
-                line.setMarksEarned(BigDecimal.ZERO);
-                continue;
-            }
-
-            if (Boolean.TRUE.equals(line.getItem().getCanMarkIncrease())) {
-                BigDecimal earnedForLine = line.getTotalSum()
-                        .multiply(currentLevel.getCashbackRate())
-                        .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-
-                line.setMarksEarned(earnedForLine);
-                totalEarned = totalEarned.add(earnedForLine);
-            } else {
-                line.setMarksEarned(BigDecimal.ZERO);
-            }
-        }
-        transaction.setMarksEarned(totalEarned);
-    }
-
     public TransactionParameters calculateFullParameters(Transaction transaction) {
+        log.info(">>> Начало полного расчета лояльности для транзакции: {}", transaction.getExternalNumber());
+
+        if (transaction.getCustomer() == null) {
+            log.warn("Расчет невозможен: клиент не указан");
+            throw new RuntimeException("Клиент не выбран");
+        }
+
         TransactionParameters params = new TransactionParameters();
 
-        // 1. Получаем аккаунт через DAO
+        // 1. Получаем аккаунт
         CustomerBonusAccount account = accountRepository
                 .findByCustomerAndCompany(transaction.getCustomer(), transaction.getCompany())
-                .orElseThrow(() -> new RuntimeException("Бонусный счет не найден"));
+                .orElseThrow(() -> new RuntimeException("Бонусный счет клиента не найден"));
 
         params.setCustomer(transaction.getCustomer());
         params.setBalanceBefore(account.getMark());
 
-        // 2. Получаем конфиг (логика фильтрации по группам остается в сервисе)
+        // 2. Ищем лучший конфиг
         LoyaltyProgramConfig bestConfig = findBestConfig(transaction.getCustomer(), transaction.getCompany());
+        log.debug("Выбран конфиг: {} (ID: {})", bestConfig.getName(), bestConfig.getId());
 
-        // 3. Сценарии
-        params.setZeroSpendScenario(calculateScenario(transaction, account, BigDecimal.ZERO));
+        // 3. СИНХРОНИЗАЦИЯ: Обновляем уровень клиента согласно выбранному конфигу
+        LoyaltyLevel currentLevel = syncAndGetActualLevel(account, bestConfig);
+        log.info("Текущий уровень клиента: {} (Cashback: {}%)", currentLevel.getName(), currentLevel.getCashbackRate());
 
-        BigDecimal maxToSpend = calculateMaxPossibleSpend(transaction, account);
-        params.setMaxSpendScenario(calculateScenario(transaction, account, maxToSpend));
+        // 4. Сценарий 1: Zero Spend (чистое начисление)
+        params.setZeroSpendScenario(calculateScenario(transaction, currentLevel, BigDecimal.ZERO));
+
+        // 5. Сценарий 2: Max Spend
+        BigDecimal maxToSpend = calculateMaxPossibleSpend(transaction, currentLevel, account.getMark());
+        params.setMaxSpendScenario(calculateScenario(transaction, currentLevel, maxToSpend));
+
+        log.info("Расчет завершен. Макс. списание: {}, Начисление при этом: {}",
+                maxToSpend, params.getMaxSpendScenario().getMarksToEarn());
 
         return params;
     }
 
+    /**
+     * Поиск конфига по приоритету и группам
+     */
     private LoyaltyProgramConfig findBestConfig(Customer customer, Company company) {
-        // 1. Достаем все активные конфиги компании, отсортированные по приоритету
         List<LoyaltyProgramConfig> activeConfigs = loyaltyConfigRepository.findActiveConfigs(company);
 
-        // 2. Получаем ID групп клиента
-        Set<UUID> customerGroupIds = customer.getCustomerGroups().stream()
-                .map(CustomerGroup::getId)
-                .collect(Collectors.toSet());
+        Set<UUID> customerGroupIds = customer.getCustomerGroups() != null
+                ? customer.getCustomerGroups().stream().map(CustomerGroup::getId).collect(Collectors.toSet())
+                : Collections.emptySet();
 
-        // 3. Ищем самый приоритетный подходящий
         return activeConfigs.stream()
                 .filter(config -> {
-                    // Если группа в конфиге не указана (null) — подходит всем
-                    if (config.getCustomerGroup() == null) {
-                        return true;
-                    }
-                    // Иначе проверяем, есть ли эта конкретная группа у клиента
+                    if (config.getCustomerGroup() == null) return true;
                     return customerGroupIds.contains(config.getCustomerGroup().getId());
                 })
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Подходящая программа лояльности не найдена"));
     }
 
-
-    private CalculationScenario calculateScenario(Transaction transaction, CustomerBonusAccount account, BigDecimal spendAmount) {
+    /**
+     * Универсальное ядро расчета сценария
+     */
+    private CalculationScenario calculateScenario(Transaction transaction, LoyaltyLevel level, BigDecimal spendAmount) {
         CalculationScenario scenario = new CalculationScenario();
         scenario.setMarksToSpend(spendAmount);
         scenario.setItemResults(new ArrayList<>());
@@ -131,32 +113,30 @@ public class LoyaltyService {
         BigDecimal totalDiscount = BigDecimal.ZERO;
         BigDecimal currentSpendLeft = spendAmount;
 
-        LoyaltyLevel level = account.getLoyaltyLevel();
-        BigDecimal cashbackRate = (level != null) ? level.getCashbackRate() : BigDecimal.ZERO;
-        BigDecimal levelDiscountRate = (level != null) ? level.getDiscount() : BigDecimal.ZERO;
+        BigDecimal cashbackRate = level.getCashbackRate();
+        BigDecimal levelDiscountRate = level.getDiscount();
 
         for (TransactionItem item : transaction.getItems()) {
+            if (item.getItem() == null || item.getTotalSum() == null) continue;
+
             ItemResult itemRes = new ItemResult();
             itemRes.setTransactionItem(item);
 
-            // --- ШАГ 1: Прямая скидка уровня (если есть) ---
+            // 1. Скидка уровня
             BigDecimal directDiscount = item.getTotalSum()
                     .multiply(levelDiscountRate)
                     .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-
             BigDecimal priceAfterDiscount = item.getTotalSum().subtract(directDiscount);
 
-            // --- ШАГ 2: Списание баллов (Marks Spent) ---
+            // 2. Списание баллов
             BigDecimal marksSpentOnItem = BigDecimal.ZERO;
             if (currentSpendLeft.compareTo(BigDecimal.ZERO) > 0 && Boolean.TRUE.equals(item.getItem().getCanPayByMark())) {
                 marksSpentOnItem = priceAfterDiscount.min(currentSpendLeft);
                 currentSpendLeft = currentSpendLeft.subtract(marksSpentOnItem);
             }
 
-            // --- ШАГ 3: Начисление баллов (Marks Earned) ---
-            // База для начисления = Цена - Прямая Скидка - Списанные баллы
+            // 3. Начисление баллов
             BigDecimal finalCashPart = priceAfterDiscount.subtract(marksSpentOnItem);
-
             BigDecimal earned = BigDecimal.ZERO;
             if (Boolean.TRUE.equals(item.getItem().getCanMarkIncrease())) {
                 earned = finalCashPart
@@ -181,16 +161,16 @@ public class LoyaltyService {
         return scenario;
     }
 
-    private BigDecimal calculateMaxPossibleSpend(Transaction transaction, CustomerBonusAccount account) {
-        if (account.getLoyaltyLevel() == null) return BigDecimal.ZERO;
-
-        BigDecimal spendRate = account.getLoyaltyLevel().getMarkspendRate();
-        BigDecimal levelDiscountRate = account.getLoyaltyLevel().getDiscount();
+    /**
+     * Расчет максимально допустимого списания по чеку
+     */
+    private BigDecimal calculateMaxPossibleSpend(Transaction transaction, LoyaltyLevel level, BigDecimal customerBalance) {
+        BigDecimal spendRate = level.getMarkspendRate();
+        BigDecimal levelDiscountRate = level.getDiscount();
 
         BigDecimal maxLimitByItems = transaction.getItems().stream()
-                .filter(i -> Boolean.TRUE.equals(i.getItem().getCanPayByMark()))
+                .filter(i -> i.getItem() != null && Boolean.TRUE.equals(i.getItem().getCanPayByMark()))
                 .map(i -> {
-                    // Сначала вычитаем прямую скидку, потом считаем лимит списания от остатка
                     BigDecimal afterDiscount = i.getTotalSum().subtract(
                             i.getTotalSum().multiply(levelDiscountRate).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP)
                     );
@@ -198,26 +178,24 @@ public class LoyaltyService {
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return account.getMark().min(maxLimitByItems);
+        return customerBalance.min(maxLimitByItems);
     }
 
     /**
-     * Определяет актуальный уровень и обновляет его в аккаунте, если он изменился.
+     * Синхронизация уровня клиента на основе его накопленных трат
      */
     public LoyaltyLevel syncAndGetActualLevel(CustomerBonusAccount account, LoyaltyProgramConfig config) {
         BigDecimal spent = account.getEffectiveCash() != null ? account.getEffectiveCash() : BigDecimal.ZERO;
 
-        // Ищем, какой уровень сейчас подходит клиенту по его тратам
         LoyaltyLevel actualLevel = levelRepository.findApplicableLevels(config, spent).stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("В программе лояльности не настроены уровни"));
+                .orElseThrow(() -> new RuntimeException("В конфигурации лояльности не найдены уровни"));
 
-        // Если в базе записан другой уровень — обновляем (кэшируем)
         if (!actualLevel.equals(account.getLoyaltyLevel())) {
+            log.info(">>> Уровень клиента изменился! Старый: {}, Новый: {}",
+                    account.getLoyaltyLevel() != null ? account.getLoyaltyLevel().getName() : "нет",
+                    actualLevel.getName());
             account.setLoyaltyLevel(actualLevel);
-            // Мы не вызываем dataManager.save(account) здесь,
-            // чтобы не делать лишних транзакций.
-            // Объект обновится, когда мы сохраним всю транзакцию покупки.
         }
 
         return actualLevel;

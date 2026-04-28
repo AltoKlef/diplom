@@ -54,15 +54,12 @@
         </formLayout>
         <h4 text="msg://com.alto.diplom.entity.transactions/Transaction.items"/>
         <hbox id="itemsButtonsPanel" classNames="buttons-panel">
-            <button action="itemsDataGrid.createAction"/>
-            <button id="addFromCatalogBtn" text="Выбрать из каталога" themeNames="primary"/>
-
-            <button action="itemsDataGrid.editAction"/>
+            <button action="itemsDataGrid.readAction"/>
             <button action="itemsDataGrid.removeAction"/>
         </hbox>
         <dataGrid id="itemsDataGrid" dataContainer="itemsDc" width="100%" minHeight="20em">
             <actions>
-                <action id="createAction" type="list_create">
+                <action id="readAction" type="list_read">
                     <properties>
                         <property name="openMode" value="DIALOG"/>
                     </properties>

@@ -62,53 +62,5 @@ public class TransactionDetailView extends StandardDetailView<Transaction> {
         event.getEntity().setExternalNumber(randomUuid);
     }
 
-    // В TransactionDetailView
-    @Subscribe(id = "itemsDc", target = Target.DATA_CONTAINER)
-    public void onItemsDcCollectionChange(CollectionContainer.CollectionChangeEvent<TransactionItem> event) {
-        Transaction transaction = getEditedEntity();
 
-        // ПРЕДОХРАНИТЕЛЬ:
-        if (transaction.getCustomer() == null || transaction.getCompany() == null) {
-            return; // Рано считать, кассир еще не выбрал клиента
-        }
-
-        // Только если данные есть — вызываем сервис
-        TransactionParameters params = loyaltyService.calculateFullParameters(transaction);
-    }
-
-    @Subscribe("addFromCatalogBtn")
-    public void onAddFromCatalogBtnClick(final ClickEvent<JmixButton> event) {
-        // Не сохраняем в переменную с типом <ItemGroupListView>,
-        // так как Jmix вернет View<?> при поиске по String ID
-        dialogWindows.lookup(this, Item.class)
-                .withViewId("ItemGroup.list")
-                .withSelectHandler(items -> {
-                    for (Item catalogItem : items) {
-                        addTransactionItem(catalogItem);
-                    }
-                })
-                .build()
-                .open();
-    }
-    private void addTransactionItem(Item catalogItem) {
-        // 1. Создаем новую "строку чека" через metadata
-        TransactionItem newItem = metadata.create(TransactionItem.class);
-
-        // 2. Связываем её с выбранным товаром из каталога
-        newItem.setItem(catalogItem);
-
-        // 3. Копируем цену и ставим количество по умолчанию
-        newItem.setPrice(catalogItem.getPrice());
-        newItem.setQuantity(BigDecimal.ONE);
-        newItem.setTotalSum(catalogItem.getPrice()); // Цена * 1
-
-        // 4. Привязываем к текущей транзакции
-        newItem.setTransactionn(getEditedEntity());
-
-        // 5. Добавляем в контейнер (таблица сразу её увидит)
-        itemsDc.getMutableItems().add(newItem);
-
-        // 6. Вызываем пересчет (твой метод с LoyaltyService)
-        loyaltyService.calculateFullParameters(newItem.getTransactionn());
-    }
 }

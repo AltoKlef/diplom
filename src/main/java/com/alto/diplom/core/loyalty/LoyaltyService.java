@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 // ... остальные импорты
 
 @Service
@@ -199,5 +200,39 @@ public class LoyaltyService {
         }
 
         return actualLevel;
+    }
+
+    @Transactional
+    public void executeTransaction(Transaction transaction) {
+        log.info(">>> Запуск проведения транзакции: {}", transaction.getExternalNumber());
+
+        // 1. Находим бонусный счет
+        CustomerBonusAccount account = accountRepository
+                .findByCustomerAndCompany(transaction.getCustomer(), transaction.getCompany())
+                .orElseThrow(() -> new RuntimeException("Бонусный счет клиента не найден"));
+
+        // 2. Расчет нового баланса
+        // Важно: используем coalesce (nullToZero), если вдруг поля пустые
+        BigDecimal spent = transaction.getMarksSpent() != null ? transaction.getMarksSpent() : BigDecimal.ZERO;
+        BigDecimal earned = transaction.getMarksEarned() != null ? transaction.getMarksEarned() : BigDecimal.ZERO;
+
+        BigDecimal currentMarks = account.getMark() != null ? account.getMark() : BigDecimal.ZERO;
+        BigDecimal newBalance = currentMarks.subtract(spent).add(earned);
+
+        // Проверка на отрицательный баланс (бизнес-валидация)
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("Недостаточно баллов на счету. Текущий баланс: " + currentMarks);
+        }
+
+        account.setMark(newBalance);
+
+        // 3. СОХРАНЕНИЕ ВСЕГО ПАКЕТА
+        // dataManager.save() внутри @Transactional гарантирует атомарность.
+        // Мы сохраняем и обновленный счет, и саму транзакцию (вместе с TransactionItems,
+        // так как в сущности стоит @Composition и CascadeType.ALL)
+        dataManager.save(transaction, account);
+
+        log.info("Транзакция успешно проведена. ID: {}, Новый баланс: {}",
+                transaction.getId(), newBalance);
     }
 }

@@ -82,6 +82,12 @@
                         <action id="clear" type="entity_clear"/>
                     </actions>
                 </entityPicker>
+                <entityPicker id="CompanyPicker" dataContainer="transactionDc" property="company" label="Выбор Компании">
+                    <actions>
+                        <action id="lookup" type="entity_lookup"/>
+                        <action id="clear" type="entity_clear"/>
+                    </actions>
+                </entityPicker>
 
                 <checkbox id="spendPointsCheck" label="Списать доступные баллы?" value="false"/>
                 <bigDecimalField id="pointsToSpendField" label="Будет списано" readOnly="true"/>

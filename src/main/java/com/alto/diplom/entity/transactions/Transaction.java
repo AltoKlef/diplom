@@ -5,6 +5,7 @@ import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.entity.core.Customer;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
 import io.jmix.core.metamodel.annotation.Composition;
 import io.jmix.core.metamodel.annotation.InstanceName;
@@ -69,6 +70,7 @@ public class Transaction implements HasCompany {
     private List<TransactionItem> items = new ArrayList<>();
 
     @JoinColumn(name = "INITIAL_TRANSACTION_ID")
+    @OnDelete(DeletePolicy.CASCADE)
     @OneToOne(fetch = FetchType.LAZY)
     private Transaction initialTransaction;
 

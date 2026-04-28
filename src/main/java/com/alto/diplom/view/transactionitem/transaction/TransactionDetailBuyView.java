@@ -26,10 +26,13 @@ import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.helger.commons.ValueEnforcer.setEnabled;
 
 @Route(value = "transactions/buy/:id", layout = MainView.class)
 @ViewController("Transaction.detailBuy")
@@ -85,41 +88,71 @@ public class TransactionDetailBuyView extends StandardDetailView<Transaction> {
         });
     }
 
-    private void resetLoyaltyCalculations() {
-        BigDecimal rawTotal = calculateRawTotal();
-        totalInfo.setText("ИТОГО (нужен расчет): " + rawTotal);
-        lastParams = null;
-    }
-    private BigDecimal calculateRawTotal() {
-        return transactionItemsDc.getItems().stream()
-                .map(TransactionItem::getTotalSum)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    @Subscribe
+    public void onBeforeShow(final BeforeShowEvent event) {
+        Transaction transaction = getEditedEntity();
+        if (transaction.getExternalNumber() == null) {
+            transaction.setExternalNumber(UUID.randomUUID().toString());
+        }
     }
 
-
-
+//    @Subscribe("addToCartBtn")
+//    public void onAddToCartBtnClick(ClickEvent<Button> event) {
+//        Item selectedItem = catalogItemsDataGrid.getSingleSelectedItem();
+//        if (selectedItem == null) return;
+//
+//        // 1. Создаем позицию чека
+//        TransactionItem newItem = dataManager.create(TransactionItem.class);
+//        newItem.setItem(selectedItem);
+//        newItem.setPrice(selectedItem.getPrice());
+//        newItem.setQuantity(BigDecimal.ONE);
+//
+//        // Считаем сумму строки (важно!)
+//        newItem.setTotalSum(newItem.getPrice().multiply(newItem.getQuantity()));
+//
+//        // Используем твой метод-сеттер для связи (тот самый transactionn)
+//        newItem.setTransaction(getEditedEntity());
+//
+//        // 2. Добавляем в корзину
+//        transactionItemsDc.getMutableItems().add(newItem);
+//
+//        // 3. Сразу обновляем общую сумму в главной сущности (ЛЕЧИМ NPE ТУТ)
+//        updateTransactionTotal();
+//    }
     @Subscribe("addToCartBtn")
     public void onAddToCartBtnClick(ClickEvent<Button> event) {
         Item selectedItem = catalogItemsDataGrid.getSingleSelectedItem();
         if (selectedItem == null) return;
 
-        // 1. Создаем позицию чека
-        TransactionItem newItem = dataManager.create(TransactionItem.class);
-        newItem.setItem(selectedItem);
-        newItem.setPrice(selectedItem.getPrice());
-        newItem.setQuantity(BigDecimal.ONE);
+        // 1. Ищем, есть ли уже этот товар в корзине
+        Optional<TransactionItem> existingItem = transactionItemsDc.getItems().stream()
+                .filter(ti -> ti.getItem().equals(selectedItem))
+                .findFirst();
 
-        // Считаем сумму строки (важно!)
-        newItem.setTotalSum(newItem.getPrice().multiply(newItem.getQuantity()));
+        if (existingItem.isPresent()) {
+            // 2. Если товар найден — увеличиваем количество
+            TransactionItem itemInCart = existingItem.get();
+            BigDecimal newQuantity = itemInCart.getQuantity().add(BigDecimal.ONE);
 
-        // Используем твой метод-сеттер для связи (тот самый transactionn)
-        newItem.setTransaction(getEditedEntity());
+            itemInCart.setQuantity(newQuantity);
+            // Пересчитываем сумму строки (Цена * Новое кол-во)
+            itemInCart.setTotalSum(itemInCart.getPrice().multiply(newQuantity));
 
-        // 2. Добавляем в корзину
-        transactionItemsDc.getMutableItems().add(newItem);
+            // Важно: уведомляем UI об изменении существующего объекта
+            transactionItemsDc.replaceItem(itemInCart);
+        } else {
+            // 3. Если товара нет — создаем новую позицию (твой старый код)
+            TransactionItem newItem = dataManager.create(TransactionItem.class);
+            newItem.setItem(selectedItem);
+            newItem.setPrice(selectedItem.getPrice());
+            newItem.setQuantity(BigDecimal.ONE);
+            newItem.setTotalSum(selectedItem.getPrice());
+            newItem.setTransaction(getEditedEntity());
 
-        // 3. Сразу обновляем общую сумму в главной сущности (ЛЕЧИМ NPE ТУТ)
+            transactionItemsDc.getMutableItems().add(newItem);
+        }
+
+        // Общий пересчет суммы транзакции и сброс параметров лояльности
         updateTransactionTotal();
     }
 
@@ -165,5 +198,43 @@ public class TransactionDetailBuyView extends StandardDetailView<Transaction> {
 
         // Прокидываем баллы в каждую строку (TransactionItem)
         applyScenarioToItems(scenario);
+    }
+
+    @Subscribe("buyBtn")
+    public void onBuyBtnClick(ClickEvent<Button> event) {
+        Transaction transaction = getEditedEntity();
+
+        // 1. Проверка: не пустой ли чек?
+        if (transactionItemsDc.getItems().isEmpty()) {
+            // Уведомление (можно использовать Notifications)
+            return;
+        }
+
+        // 2. Гарантируем, что расчет был сделан
+        if (lastParams == null) {
+            onCalculateBtnClick(null);
+        }
+
+        // 3. Выбираем финальный сценарий на основе галочки
+        TransactionParameters.CalculationScenario finalScenario = Boolean.TRUE.equals(spendPointsCheck.getValue())
+                ? lastParams.getMaxSpendScenario()
+                : lastParams.getZeroSpendScenario();
+
+        // 4. Записываем итоги в транзакцию
+        transaction.setMarksSpent(finalScenario.getMarksToSpend());
+        transaction.setMarksEarned(finalScenario.getMarksToEarn());
+        transaction.setTotalAmount(finalScenario.getTotalAmount());
+        transaction.setExternalTransactionTimestamp(OffsetDateTime.now());
+        event.getSource().setEnabled(false);
+        try {
+            loyaltyService.executeTransaction(transaction);
+
+            close(StandardOutcome.SAVE);
+
+        } catch (Exception e) {
+             event.getSource().setEnabled(true);
+
+            throw e;
+        }
     }
 }

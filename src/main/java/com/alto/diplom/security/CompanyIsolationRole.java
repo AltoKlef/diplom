@@ -2,6 +2,7 @@ package com.alto.diplom.security;
 
 import com.alto.diplom.core.HasCompany;
 //import com.alto.diplom.entity.OnRegisterConfig;
+import com.alto.diplom.entity.TransactionConfig;
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import com.alto.diplom.entity.core.Customer;
 import com.alto.diplom.entity.core.CustomerGroup;
@@ -48,4 +49,8 @@ public interface CompanyIsolationRole {
     @JpqlRowLevelPolicy(entityClass = Item.class,
             where = "{E}.itemGroup.company= :current_user_company")
     void itemPolicy();
+
+    @JpqlRowLevelPolicy(entityClass = TransactionConfig.class,
+            where = COMPANY_FILTER)
+    void TransactionConfigAccountPolicy();
 }

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
+      title="msg://transactionConfigListView.title"
+      focusComponent="transactionConfigsDataGrid">
+    <data>
+        <collection id="transactionConfigsDc"
+                    class="com.alto.diplom.entity.TransactionConfig">
+            <fetchPlan extends="_base">
+                <property name="company" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="transactionConfigsDl" readOnly="true"/>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout>
+        <genericFilter id="genericFilter"
+                       dataLoader="transactionConfigsDl">
+            <properties include=".*"/>
+        </genericFilter>
+        <hbox id="buttonsPanel" classNames="buttons-panel">
+            <startSlot>
+                <button id="createButton" action="transactionConfigsDataGrid.createAction"/>
+                <button id="editButton" action="transactionConfigsDataGrid.editAction"/>
+                <button id="removeButton" action="transactionConfigsDataGrid.removeAction"/>
+            </startSlot>
+            <endSlot>
+                <simplePagination id="pagination" dataLoader="transactionConfigsDl"/>
+            </endSlot>
+        </hbox>
+        <dataGrid id="transactionConfigsDataGrid"
+                  width="100%"
+                  minHeight="20em"
+                  dataContainer="transactionConfigsDc"
+                  columnReorderingAllowed="true">
+            <actions>
+                <action id="createAction" type="list_create"/>
+                <action id="editAction" type="list_edit"/>
+                <action id="removeAction" type="list_remove"/>
+            </actions>
+            <columns resizable="true">
+                <column property="daysToMarkActivation"/>
+                <column property="minSumToIncrease"/>
+                <column property="markIncreaseMode"/>
+                <column property="company"/>
+            </columns>
+        </dataGrid>
+        <hbox id="lookupActions" visible="false">
+            <button id="selectButton" action="selectAction"/>
+            <button id="discardButton" action="discardAction"/>
+        </hbox>
+    </layout>
+</view>

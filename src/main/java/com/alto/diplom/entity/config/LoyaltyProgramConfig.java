@@ -1,6 +1,7 @@
 package com.alto.diplom.entity.config;
 
 import com.alto.diplom.core.HasCompany;
+import com.alto.diplom.entity.TransactionConfig;
 import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.entity.core.CustomerGroup;
 import com.alto.diplom.entity.loyalty.LoyaltyLevel;
@@ -8,6 +9,7 @@ import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
 import io.jmix.core.metamodel.annotation.Composition;
 import io.jmix.core.metamodel.annotation.InstanceName;
@@ -52,7 +54,7 @@ public class LoyaltyProgramConfig implements HasCompany {
 
     @JoinColumn(name = "CUSTOMER_GROUP_ID")
     @ManyToOne(fetch = FetchType.LAZY)
-    private CustomerGroup customerGroup; // Теперь это просто одна группа или null
+    private CustomerGroup customerGroup;
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "COMPANY_ID", nullable = false)
@@ -60,8 +62,9 @@ public class LoyaltyProgramConfig implements HasCompany {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Company company;
 
-    @Composition // Важно! Уровни не существуют без программы
-    @OneToMany(mappedBy = "loyaltyProgramConfig") // Ссылаемся на поле в LoyaltyLevel
+    @Composition
+    @OnDelete(DeletePolicy.CASCADE)
+    @OneToMany(mappedBy = "loyaltyProgramConfig")
     private List<LoyaltyLevel> levels;
 
     @CreatedBy
@@ -87,5 +90,13 @@ public class LoyaltyProgramConfig implements HasCompany {
     @DeletedDate
     @Column(name = "DELETED_DATE")
     private OffsetDateTime deletedDate;
+
+    // В LoyaltyProgramConfig
+    @Composition
+    @NotNull
+    @OnDelete(DeletePolicy.CASCADE)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TRANSACTION_CONFIG_ID")
+    private TransactionConfig transactionConfig;
 
 }

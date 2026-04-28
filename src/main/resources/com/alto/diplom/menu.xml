@@ -13,6 +13,8 @@
         <item view="ItemGroup.list" title="msg://com.alto.diplom.view.itemgroup/itemGroupListView.title"/>
         <item view="Transaction_.list" title="msg://com.alto.diplom.view.transaction/transactionListView.title"/>
         <item view="CustomerGroup.list" title="msg://com.alto.diplom.view.customergroup/customerGroupListView.title"/>
+        <item view="TransactionConfig.list"
+              title="msg://com.alto.diplom.view.transactionconfig/transactionConfigListView.title"/>
     </menu>
 
 </menu-config>

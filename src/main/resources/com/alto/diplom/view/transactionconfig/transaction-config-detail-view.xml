@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <view xmlns="http://jmix.io/schema/flowui/view"
-      title="msg://loyaltyProgramConfigDetailView.title"
+      title="msg://transactionConfigDetailView.title"
       focusComponent="form">
     <data>
-        <instance id="loyaltyProgramConfigDc"
-                  class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
+        <instance id="transactionConfigDc"
+                  class="com.alto.diplom.entity.TransactionConfig">
             <fetchPlan extends="_base">
-                <property name="company" fetchPlan="_base">
-                    <property name="id"/>
-                </property>
-                <property name="transactionConfig" fetchPlan="_base"/>
+                <property name="company" fetchPlan="_base"/>
             </fetchPlan>
-            <loader id="loyaltyProgramConfigDl"/>
+            <loader id="transactionConfigDl"/>
         </instance>
     </data>
     <facets>
@@ -22,24 +19,17 @@
         <action id="closeAction" type="detail_close"/>
     </actions>
     <layout>
-        <formLayout id="form" dataContainer="loyaltyProgramConfigDc">
+        <formLayout id="form" dataContainer="transactionConfigDc">
             <responsiveSteps>
                 <responsiveStep minWidth="0" columns="1"/>
                 <responsiveStep minWidth="40em" columns="2"/>
             </responsiveSteps>
-            <textField id="nameField" property="name"/>
-            <textField id="priorityField" property="priority"/>
-            <checkbox id="isActiveField" property="isActive"/>
-            <entityPicker property="company">
+            <textField id="daysToMarkActivationField" property="daysToMarkActivation"/>
+            <textField id="minSumToIncreaseField" property="minSumToIncrease"/>
+            <select id="markIncreaseModeField" property="markIncreaseMode"/>
+            <entityPicker id="companyField" property="company">
                 <actions>
                     <action id="entityLookupAction" type="entity_lookup"/>
-                    <action id="entityClearAction" type="entity_clear"/>
-                </actions>
-            </entityPicker>
-            <textField property="company.id"/>
-            <entityPicker id="transactionConfigField" property="transactionConfig">
-                <actions>
-                    <action id="entityOpenAction" type="entity_openComposition"/>
                     <action id="entityClearAction" type="entity_clear"/>
                 </actions>
             </entityPicker>

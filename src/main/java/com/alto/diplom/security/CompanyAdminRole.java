@@ -65,8 +65,8 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityAttributePolicy(entityClass = Company.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
     void company();
 
-    @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "Transaction_.list", "CustomerGroup.list"})
-    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail", "Transaction_.list", "CustomerGroup.list", "CustomerGroup.detail", "Transaction_.detail","Transaction.detailBuy", "TransactionItem.detail"})
+    @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "Transaction_.list", "CustomerGroup.list", "TransactionConfig.list"})
+    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail", "Transaction_.list", "CustomerGroup.list", "CustomerGroup.detail", "Transaction_.detail", "Transaction.detailBuy", "TransactionItem.detail", "TransactionConfig.list"})
     void screens();
 
     @EntityPolicy(entityClass = CustomerGroup.class, actions = EntityPolicyAction.ALL)

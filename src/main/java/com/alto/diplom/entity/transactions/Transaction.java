@@ -1,6 +1,7 @@
 package com.alto.diplom.entity.transactions;
 
 import com.alto.diplom.core.HasCompany;
+import com.alto.diplom.entity.MarkStrategy;
 import com.alto.diplom.entity.core.Company;
 import com.alto.diplom.entity.core.Customer;
 import io.jmix.core.DeletePolicy;
@@ -35,6 +36,9 @@ public class Transaction implements HasCompany {
     @Column(name = "ID", nullable = false)
     @Id
     private UUID id;
+
+    @Column(name = "MARK_STRATEGY")
+    private String markStrategy;
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false)

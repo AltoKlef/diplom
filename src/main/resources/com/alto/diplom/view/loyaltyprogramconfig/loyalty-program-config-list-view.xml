@@ -8,10 +8,10 @@
             <fetchPlan extends="_base">
                 <property name="levels" fetchPlan="_base"/>
                 <property name="company" fetchPlan="_instance_name"/>
+                <property name="transactionConfig" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="loyaltyProgramConfigsDl"/>
         </collection>
-
         <instance id="loyaltyProgramConfigDc"
                   class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
             <fetchPlan extends="_base">
@@ -21,7 +21,6 @@
                     <property name="requiredSum"/>
                 </property>
             </fetchPlan>
-
             <collection id="levelsDc" property="levels"/>
         </instance>
     </data>
@@ -34,7 +33,6 @@
     </facets>
     <layout padding="false">
         <split width="100%" height="100%" orientation="HORIZONTAL" splitterPosition="40">
-
             <vbox id="lookupBox" height="100%" padding="true" spacing="true" expand="loyaltyProgramConfigsDataGrid">
                 <genericFilter id="genericFilter" dataLoader="loyaltyProgramConfigsDl">
                     <properties include=".*"/>
@@ -55,10 +53,10 @@
                     <columns>
                         <column property="name"/>
                         <column property="isActive"/>
+                        <column property="transactionConfig"/>
                     </columns>
                 </dataGrid>
             </vbox>
-
             <vbox id="detailsBox" height="100%" padding="true" spacing="true" expand="levelsDataGrid">
                 <h3 text="Уровни лояльности" classNames="font-bold text-xl"/>
                 <hbox classNames="buttons-panel">

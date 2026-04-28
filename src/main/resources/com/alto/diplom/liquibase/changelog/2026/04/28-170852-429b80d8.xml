@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="diplom">
+        <createTable tableName="TRANSACTION_CONFIG">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_TRANSACTION_CONFIG"/>
+            </column>
+            <column name="DAYS_TO_MARK_ACTIVATION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MIN_SUM_TO_INCREASE" type="INT"/>
+            <column name="MARK_INCREASE_MODE" type="VARCHAR(255)"/>
+            <column name="COMPANY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED_BY" type="VARCHAR(255)"/>
+            <column name="DELETED_DATE" type="${offsetDateTime.type}"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATED_DATE" type="${offsetDateTime.type}"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="diplom">
+        <addColumn tableName="TRANSACTION_">
+            <column name="MARK_STRATEGY" type="VARCHAR(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="3" author="diplom">
+        <addColumn tableName="LOYALTY_PROGRAM_CONFIG">
+            <column name="TRANSACTION_CONFIG_ID" type="UUID"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="4" author="diplom">
+        <createIndex indexName="IDX_TRANSACTION_CONFIG_COMPANY" tableName="TRANSACTION_CONFIG">
+            <column name="COMPANY_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="COMPANY_ID" baseTableName="TRANSACTION_CONFIG"
+                                 constraintName="FK_TRANSACTION_CONFIG_ON_COMPANY" referencedColumnNames="ID"
+                                 referencedTableName="COMPANY"/>
+    </changeSet>
+    <changeSet id="5" author="diplom">
+        <addForeignKeyConstraint baseColumnNames="TRANSACTION_CONFIG_ID" baseTableName="LOYALTY_PROGRAM_CONFIG"
+                                 constraintName="FK_LOYALTY_PROGRAM_CONFIG_ON_TRANSACTION_CONFIG"
+                                 referencedColumnNames="ID" referencedTableName="TRANSACTION_CONFIG"/>
+    </changeSet>
+</databaseChangeLog>

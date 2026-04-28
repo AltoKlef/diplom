@@ -79,7 +79,12 @@ public class TransactionDetailBuyView extends StandardDetailView<Transaction> {
             itemsDl.load();
         }
     }
-
+    @Override
+    public boolean hasUnsavedChanges() {
+        // Говорим Jmix, что несохраненных данных нет,
+        // так как мы сами управляем процессом через сервис
+        return false;
+    }
     private void applyScenarioToItems(TransactionParameters.CalculationScenario scenario) {
         scenario.getItemResults().forEach(res -> {
             TransactionItem item = res.getTransactionItem();
@@ -96,29 +101,6 @@ public class TransactionDetailBuyView extends StandardDetailView<Transaction> {
         }
     }
 
-//    @Subscribe("addToCartBtn")
-//    public void onAddToCartBtnClick(ClickEvent<Button> event) {
-//        Item selectedItem = catalogItemsDataGrid.getSingleSelectedItem();
-//        if (selectedItem == null) return;
-//
-//        // 1. Создаем позицию чека
-//        TransactionItem newItem = dataManager.create(TransactionItem.class);
-//        newItem.setItem(selectedItem);
-//        newItem.setPrice(selectedItem.getPrice());
-//        newItem.setQuantity(BigDecimal.ONE);
-//
-//        // Считаем сумму строки (важно!)
-//        newItem.setTotalSum(newItem.getPrice().multiply(newItem.getQuantity()));
-//
-//        // Используем твой метод-сеттер для связи (тот самый transactionn)
-//        newItem.setTransaction(getEditedEntity());
-//
-//        // 2. Добавляем в корзину
-//        transactionItemsDc.getMutableItems().add(newItem);
-//
-//        // 3. Сразу обновляем общую сумму в главной сущности (ЛЕЧИМ NPE ТУТ)
-//        updateTransactionTotal();
-//    }
     @Subscribe("addToCartBtn")
     public void onAddToCartBtnClick(ClickEvent<Button> event) {
         Item selectedItem = catalogItemsDataGrid.getSingleSelectedItem();

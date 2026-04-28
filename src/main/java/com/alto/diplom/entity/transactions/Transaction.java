@@ -37,8 +37,9 @@ public class Transaction implements HasCompany {
     @Id
     private UUID id;
 
-    @Column(name = "MARK_STRATEGY")
-    private String markStrategy;
+    @NotNull
+    @Column(name = "MARK_STRATEGY", nullable = false)
+    private MarkStrategy markStrategy;
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "CUSTOMER_ID", nullable = false)

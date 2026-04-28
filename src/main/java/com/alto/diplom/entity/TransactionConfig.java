@@ -1,5 +1,6 @@
 package com.alto.diplom.entity;
 
+import com.alto.diplom.core.HasCompany;
 import com.alto.diplom.entity.core.Company;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
@@ -26,7 +27,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-public class TransactionConfig {
+public class TransactionConfig implements HasCompany {
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id
@@ -38,8 +39,9 @@ public class TransactionConfig {
     @Column(name = "MIN_SUM_TO_INCREASE")
     private Integer minSumToIncrease;
 
-    @Column(name = "MARK_INCREASE_MODE")
-    private String markIncreaseMode;
+    @NotNull
+    @Column(name = "MARK_INCREASE_MODE", nullable = false)
+    private MarkIncreaseMode markIncreaseMode;
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "COMPANY_ID", nullable = false)
@@ -51,7 +53,7 @@ public class TransactionConfig {
     @DependsOnProperties({"daysToMarkActivation", "markIncreaseMode"})
     public String getInstanceName() {
         return String.format("Активация: %s дн., Режим: %s",
-                daysToMarkActivation, markIncreaseMode);
+                daysToMarkActivation, markIncreaseMode.name());
     }
 
     @DeletedBy
@@ -69,14 +71,6 @@ public class TransactionConfig {
     @CreatedDate
     @Column(name = "CREATED_DATE")
     private OffsetDateTime createdDate;
-
-    public MarkIncreaseMode getMarkIncreaseMode() {
-        return markIncreaseMode == null ? null : MarkIncreaseMode.fromId(markIncreaseMode);
-    }
-
-    public void setMarkIncreaseMode(MarkIncreaseMode markIncreaseMode) {
-        this.markIncreaseMode = markIncreaseMode == null ? null : markIncreaseMode.getId();
-    }
 
 
 }

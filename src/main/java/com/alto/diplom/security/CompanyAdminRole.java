@@ -1,5 +1,6 @@
 package com.alto.diplom.security;
 
+import com.alto.diplom.entity.TransactionConfig;
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import com.alto.diplom.entity.config.OnRegisterConfig;
 import com.alto.diplom.entity.core.Company;
@@ -45,17 +46,13 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityPolicy(entityClass = LoyaltyLevel.class, actions = EntityPolicyAction.ALL)
     void loyaltyLevel();
 
-    @EntityAttributePolicy(entityClass = LoyaltyProgramConfig.class, attributes = {"name", "priority", "isActive", "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate", "deletedBy", "deletedDate"}, action = EntityAttributePolicyAction.MODIFY)
+    @EntityAttributePolicy(entityClass = LoyaltyProgramConfig.class, attributes = {"name", "priority", "isActive", "customerGroup", "levels", "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate", "deletedBy", "deletedDate", "transactionConfig"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = LoyaltyProgramConfig.class, actions = EntityPolicyAction.ALL)
     void loyaltyProgramConfig();
 
     @EntityAttributePolicy(entityClass = Transaction.class, attributes = {"customer", "externalNumber", "totalAmount", "marksEarned", "marksSpent", "externalTransactionTimestamp", "items", "initialTransaction", "isNeedToActivate", "timeActivate"}, action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = Transaction.class, actions = EntityPolicyAction.ALL)
+    @EntityPolicy(entityClass = Transaction.class, actions = {EntityPolicyAction.READ, EntityPolicyAction.CREATE, EntityPolicyAction.DELETE})
     void transaction();
-
-    @EntityAttributePolicy(entityClass = TransactionItem.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = TransactionItem.class, actions = EntityPolicyAction.ALL)
-    void transactionItem();
 
     @EntityAttributePolicy(entityClass = User.class, attributes = {"username", "firstName", "lastName", "password"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityAttributePolicy(entityClass = User.class, attributes = "company", action = EntityAttributePolicyAction.VIEW)
@@ -65,13 +62,23 @@ public interface CompanyAdminRole extends UiMinimalRole {
     @EntityAttributePolicy(entityClass = Company.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
     void company();
 
-    @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "Transaction_.list", "CustomerGroup.list", "TransactionConfig.list"})
-    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail", "Transaction_.list", "CustomerGroup.list", "CustomerGroup.detail", "Transaction_.detail", "Transaction.detailBuy", "TransactionItem.detail", "TransactionConfig.list"})
+    @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "Transaction_.list", "CustomerGroup.list", "TransactionConfig.list", "OnRegisterConfig.list"})
+    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail", "Transaction_.list", "CustomerGroup.list", "CustomerGroup.detail", "Transaction_.detail", "Transaction.detailBuy", "TransactionItem.detail", "TransactionConfig.list", "TransactionConfig.detail", "OnRegisterConfig.list", "OnRegisterConfig.detail"})
     void screens();
 
+    @EntityAttributePolicy(entityClass = CustomerGroup.class, attributes = {"name", "loyaltyConfig"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = CustomerGroup.class, actions = EntityPolicyAction.ALL)
     void customerGroup();
 
+    @EntityAttributePolicy(entityClass = OnRegisterConfig.class, attributes = {"isActive", "markIncrease", "daysToDelayedActivation"}, action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = OnRegisterConfig.class, actions = EntityPolicyAction.ALL)
     void onRegisterConfig();
+
+    @EntityAttributePolicy(entityClass = TransactionConfig.class, attributes = {"daysToMarkActivation", "minSumToIncrease", "markIncreaseMode", "deletedBy", "createdBy", "createdDate", "deletedDate"}, action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = TransactionConfig.class, actions = EntityPolicyAction.ALL)
+    void transactionConfig();
+
+    @EntityAttributePolicy(entityClass = TransactionItem.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = TransactionItem.class, actions = EntityPolicyAction.ALL)
+    void transactionItem();
 }

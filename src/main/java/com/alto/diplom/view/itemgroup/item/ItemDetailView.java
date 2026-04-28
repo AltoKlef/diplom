@@ -1,6 +1,7 @@
 package com.alto.diplom.view.itemgroup.item;
 
 import com.alto.diplom.entity.items.Item;
+import com.alto.diplom.entity.transactions.Transaction;
 import com.alto.diplom.repository.ItemRepository;
 import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.router.Route;
@@ -30,5 +31,13 @@ public class ItemDetailView extends StandardDetailView<Item> {
     @Install(target = Target.DATA_CONTEXT)
     private Set<Object> saveDelegate(SaveContext saveContext) {
         return Set.of(repository.save(getEditedEntity()));
+    }
+
+    @Subscribe
+    public void onBeforeShow(final BeforeShowEvent event) {
+        Item item = getEditedEntity();
+        if (item.getExternalId() == null) {
+            item.setExternalId(UUID.randomUUID().toString());
+        }
     }
 }

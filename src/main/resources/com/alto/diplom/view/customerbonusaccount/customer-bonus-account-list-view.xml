@@ -76,6 +76,7 @@
                         <column property="company"/>
                         <column property="loyaltyLevel"/>
                         <column property="mark"/>
+                        <column property="effectiveCash"/>
                     </columns>
                 </dataGrid>
                 <hbox id="lookupActions" visible="false">
@@ -108,6 +109,7 @@
                         </actions>
                     </entityPicker>
                     <textField id="markField" property="mark"/>
+                    <textField id="effectiveCashField" property="effectiveCash"/>
                 </formLayout>
                 <hbox id="detailActions">
                     <button id="saveButton" text="msg:///actions.Save" icon="CHECK" themeNames="primary"/>

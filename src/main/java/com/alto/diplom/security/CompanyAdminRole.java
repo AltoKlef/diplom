@@ -63,7 +63,7 @@ public interface CompanyAdminRole extends UiMinimalRole {
     void company();
 
     @MenuPolicy(menuIds = {"Customer.list", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "Transaction_.list", "CustomerGroup.list", "TransactionConfig.list", "OnRegisterConfig.list"})
-    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail", "Transaction_.list", "CustomerGroup.list", "CustomerGroup.detail", "Transaction_.detail", "Transaction.detailBuy", "TransactionItem.detail", "TransactionConfig.list", "TransactionConfig.detail", "OnRegisterConfig.list", "OnRegisterConfig.detail"})
+    @ViewPolicy(viewIds = {"Customer.list", "Customer.detail", "LoyaltyLevel.list", "CustomerBonusAccount.list", "LoyaltyProgramConfig.list", "ItemGroup.list", "ItemGroup.detail", "Item.detail", "LoyaltyLevel.detail", "LoyaltyProgramConfig.detail", "Transaction_.list", "CustomerGroup.list", "CustomerGroup.detail", "Transaction_.detail", "Transaction.detailBuy", "TransactionItem.detail", "TransactionConfig.list", "TransactionConfig.detail", "OnRegisterConfig.list", "OnRegisterConfig.detail", "ItemGroup.listFree"})
     void screens();
 
     @EntityAttributePolicy(entityClass = CustomerGroup.class, attributes = {"name", "loyaltyConfig"}, action = EntityAttributePolicyAction.MODIFY)

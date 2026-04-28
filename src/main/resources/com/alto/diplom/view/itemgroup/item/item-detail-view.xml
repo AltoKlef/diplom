@@ -29,9 +29,13 @@
             <textField id="externalIdField" property="externalId"/>
             <checkbox id="canPayByMarkField" property="canPayByMark"/>
             <checkbox id="canMarkIncreaseField" property="canMarkIncrease"/>
-            <entityPicker id="itemGroupField" property="itemGroup">
+            <entityPicker id="parentField" property="itemGroup">
                 <actions>
-                    <action id="entityLookupAction" type="entity_lookup"/>
+                    <action id="entityLookupAction" type="entity_lookup">
+                        <properties>
+                            <property name="viewId" value="ItemGroup.listFree"/>
+                        </properties>
+                    </action>
                     <action id="entityClearAction" type="entity_clear"/>
                 </actions>
             </entityPicker>

@@ -27,6 +27,7 @@ public class Item {
     @Id
     private UUID id;
 
+    @NotNull
     @InstanceName
     @Column(name = "NAME")
     private String name;

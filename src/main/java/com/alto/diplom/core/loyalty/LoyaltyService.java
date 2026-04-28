@@ -1,5 +1,8 @@
 package com.alto.diplom.core.loyalty;
 
+import com.alto.diplom.entity.MarkIncreaseMode;
+import com.alto.diplom.entity.MarkStrategy;
+import com.alto.diplom.entity.TransactionConfig;
 import com.alto.diplom.entity.TransactionParameters;
 import com.alto.diplom.entity.config.LoyaltyProgramConfig;
 import com.alto.diplom.entity.core.Company;
@@ -19,6 +22,7 @@ import com.alto.diplom.entity.TransactionParameters.CalculationScenario;
 import com.alto.diplom.entity.TransactionParameters.ItemResult;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,7 +58,6 @@ public class LoyaltyService {
 
         TransactionParameters params = new TransactionParameters();
 
-        // 1. Получаем аккаунт
         CustomerBonusAccount account = accountRepository
                 .findByCustomerAndCompany(transaction.getCustomer(), transaction.getCompany())
                 .orElseThrow(() -> new RuntimeException("Бонусный счет клиента не найден"));
@@ -62,31 +65,30 @@ public class LoyaltyService {
         params.setCustomer(transaction.getCustomer());
         params.setBalanceBefore(account.getMark());
 
-        // 2. Ищем лучший конфиг
         LoyaltyProgramConfig bestConfig = findBestConfig(transaction.getCustomer(), transaction.getCompany());
         log.debug("Выбран конфиг: {} (ID: {})", bestConfig.getName(), bestConfig.getId());
 
-        // 3. СИНХРОНИЗАЦИЯ: Обновляем уровень клиента согласно выбранному конфигу
         LoyaltyLevel currentLevel = syncAndGetActualLevel(account, bestConfig);
-        log.info("Текущий уровень клиента: {} (Cashback: {}%)", currentLevel.getName(), currentLevel.getCashbackRate());
+
+        // Получаем настройки транзакции из программы
+        TransactionConfig txConfig = bestConfig.getTransactionConfig();
+        if (txConfig == null) {
+            throw new RuntimeException("В программе лояльности не задан TransactionConfig");
+        }
 
         // 4. Сценарий 1: Zero Spend (чистое начисление)
-        params.setZeroSpendScenario(calculateScenario(transaction, currentLevel, BigDecimal.ZERO));
+        params.setZeroSpendScenario(calculateScenario(transaction, currentLevel, BigDecimal.ZERO, txConfig));
 
         // 5. Сценарий 2: Max Spend
         BigDecimal maxToSpend = calculateMaxPossibleSpend(transaction, currentLevel, account.getMark());
-        params.setMaxSpendScenario(calculateScenario(transaction, currentLevel, maxToSpend));
-
-        log.info("Расчет завершен. Макс. списание: {}, Начисление при этом: {}",
-                maxToSpend, params.getMaxSpendScenario().getMarksToEarn());
+        params.setMaxSpendScenario(calculateScenario(transaction, currentLevel, maxToSpend, txConfig));
 
         return params;
     }
 
-    /**
-     * Поиск конфига по приоритету и группам
-     */
     private LoyaltyProgramConfig findBestConfig(Customer customer, Company company) {
+        // ВНИМАНИЕ: Убедись, что метод findActiveConfigs загружает transactionConfig
+        // через fetchPlan (иначе будет LazyInitializationException)
         List<LoyaltyProgramConfig> activeConfigs = loyaltyConfigRepository.findActiveConfigs(company);
 
         Set<UUID> customerGroupIds = customer.getCustomerGroups() != null
@@ -103,9 +105,9 @@ public class LoyaltyService {
     }
 
     /**
-     * Универсальное ядро расчета сценария
+     * Универсальное ядро расчета сценария с учетом TransactionConfig
      */
-    private CalculationScenario calculateScenario(Transaction transaction, LoyaltyLevel level, BigDecimal spendAmount) {
+    private CalculationScenario calculateScenario(Transaction transaction, LoyaltyLevel level, BigDecimal spendAmount, TransactionConfig txConfig) {
         CalculationScenario scenario = new CalculationScenario();
         scenario.setMarksToSpend(spendAmount);
         scenario.setItemResults(new ArrayList<>());
@@ -117,29 +119,46 @@ public class LoyaltyService {
         BigDecimal cashbackRate = level.getCashbackRate();
         BigDecimal levelDiscountRate = level.getDiscount();
 
+        // === ПРОВЕРКА ПРАВИЛ ИЗ КОНФИГА ===
+        boolean canEarnPoints = true;
+
+        // Правило 1: Минимальная сумма чека для начисления
+        if (txConfig.getMinSumToIncrease() != null) {
+            BigDecimal minSum = new BigDecimal(txConfig.getMinSumToIncrease());
+            if (transaction.getTotalAmount().compareTo(minSum) < 0) {
+                canEarnPoints = false;
+                log.debug("Сумма чека меньше минимальной ({} < {}). Начисление отменено.", transaction.getTotalAmount(), minSum);
+            }
+        }
+
+        // Правило 2: Режим начисления при списании
+        if (spendAmount.compareTo(BigDecimal.ZERO) > 0 && txConfig.getMarkIncreaseMode() == MarkIncreaseMode.CAN_NOT_INCREASE) {
+            canEarnPoints = false;
+            log.debug("Выбрано списание баллов, а режим CAN_NOT_INCREASE активен. Начисление отменено.");
+        }
+        // ===================================
+
         for (TransactionItem item : transaction.getItems()) {
             if (item.getItem() == null || item.getTotalSum() == null) continue;
 
             ItemResult itemRes = new ItemResult();
             itemRes.setTransactionItem(item);
 
-            // 1. Скидка уровня
             BigDecimal directDiscount = item.getTotalSum()
                     .multiply(levelDiscountRate)
                     .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
             BigDecimal priceAfterDiscount = item.getTotalSum().subtract(directDiscount);
 
-            // 2. Списание баллов
             BigDecimal marksSpentOnItem = BigDecimal.ZERO;
             if (currentSpendLeft.compareTo(BigDecimal.ZERO) > 0 && Boolean.TRUE.equals(item.getItem().getCanPayByMark())) {
                 marksSpentOnItem = priceAfterDiscount.min(currentSpendLeft);
                 currentSpendLeft = currentSpendLeft.subtract(marksSpentOnItem);
             }
 
-            // 3. Начисление баллов
-            BigDecimal finalCashPart = priceAfterDiscount.subtract(marksSpentOnItem);
             BigDecimal earned = BigDecimal.ZERO;
-            if (Boolean.TRUE.equals(item.getItem().getCanMarkIncrease())) {
+            // Начисляем только если разрешено конфигом И товаром
+            if (canEarnPoints && Boolean.TRUE.equals(item.getItem().getCanMarkIncrease())) {
+                BigDecimal finalCashPart = priceAfterDiscount.subtract(marksSpentOnItem);
                 earned = finalCashPart
                         .multiply(cashbackRate)
                         .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
@@ -162,9 +181,6 @@ public class LoyaltyService {
         return scenario;
     }
 
-    /**
-     * Расчет максимально допустимого списания по чеку
-     */
     private BigDecimal calculateMaxPossibleSpend(Transaction transaction, LoyaltyLevel level, BigDecimal customerBalance) {
         BigDecimal spendRate = level.getMarkspendRate();
         BigDecimal levelDiscountRate = level.getDiscount();
@@ -182,9 +198,6 @@ public class LoyaltyService {
         return customerBalance.min(maxLimitByItems);
     }
 
-    /**
-     * Синхронизация уровня клиента на основе его накопленных трат
-     */
     public LoyaltyLevel syncAndGetActualLevel(CustomerBonusAccount account, LoyaltyProgramConfig config) {
         BigDecimal spent = account.getEffectiveCash() != null ? account.getEffectiveCash() : BigDecimal.ZERO;
 
@@ -193,9 +206,6 @@ public class LoyaltyService {
                 .orElseThrow(() -> new RuntimeException("В конфигурации лояльности не найдены уровни"));
 
         if (!actualLevel.equals(account.getLoyaltyLevel())) {
-            log.info(">>> Уровень клиента изменился! Старый: {}, Новый: {}",
-                    account.getLoyaltyLevel() != null ? account.getLoyaltyLevel().getName() : "нет",
-                    actualLevel.getName());
             account.setLoyaltyLevel(actualLevel);
         }
 
@@ -206,33 +216,64 @@ public class LoyaltyService {
     public void executeTransaction(Transaction transaction) {
         log.info(">>> Запуск проведения транзакции: {}", transaction.getExternalNumber());
 
-        // 1. Находим бонусный счет
         CustomerBonusAccount account = accountRepository
                 .findByCustomerAndCompany(transaction.getCustomer(), transaction.getCompany())
                 .orElseThrow(() -> new RuntimeException("Бонусный счет клиента не найден"));
 
-        // 2. Расчет нового баланса
-        // Важно: используем coalesce (nullToZero), если вдруг поля пустые
+        // Получаем конфиг для заполнения полей активации чека
+        LoyaltyProgramConfig bestConfig = findBestConfig(transaction.getCustomer(), transaction.getCompany());
+        TransactionConfig txConfig = bestConfig.getTransactionConfig();
+
         BigDecimal spent = transaction.getMarksSpent() != null ? transaction.getMarksSpent() : BigDecimal.ZERO;
         BigDecimal earned = transaction.getMarksEarned() != null ? transaction.getMarksEarned() : BigDecimal.ZERO;
 
-        BigDecimal currentMarks = account.getMark() != null ? account.getMark() : BigDecimal.ZERO;
-        BigDecimal newBalance = currentMarks.subtract(spent).add(earned);
-
-        // Проверка на отрицательный баланс (бизнес-валидация)
-        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Недостаточно баллов на счету. Текущий баланс: " + currentMarks);
+        // === 1. УСТАНОВКА СТРАТЕГИИ ТРАНЗАКЦИИ ===
+        if (spent.compareTo(BigDecimal.ZERO) > 0) {
+            transaction.setMarkStrategy(MarkStrategy.SPENDING);
+        } else if (earned.compareTo(BigDecimal.ZERO) > 0) {
+            transaction.setMarkStrategy(MarkStrategy.EARNING);
+        } else {
+            transaction.setMarkStrategy(MarkStrategy.NONE);
         }
 
+        // === 2. УСТАНОВКА АКТИВАЦИИ БАЛЛОВ ===
+        if (txConfig.getDaysToMarkActivation() != null && txConfig.getDaysToMarkActivation() > 0) {
+            transaction.setIsNeedToActivate(true);
+            transaction.setTimeActivate(OffsetDateTime.now().plusDays(txConfig.getDaysToMarkActivation()));
+        } else {
+            transaction.setIsNeedToActivate(false);
+            transaction.setTimeActivate(OffsetDateTime.now());
+        }
+
+        // === 3. ИЗМЕНЕНИЕ БАЛАНСА БАЛЛОВ ===
+        BigDecimal currentMarks = account.getMark() != null ? account.getMark() : BigDecimal.ZERO;
+        BigDecimal newBalance;
+        if (Boolean.TRUE.equals(transaction.getIsNeedToActivate())) {
+            newBalance = currentMarks.subtract(spent);
+        } else {
+            newBalance = currentMarks.subtract(spent).add(earned);
+        }
+
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("Недостаточно баллов на счету.");
+        }
         account.setMark(newBalance);
 
-        // 3. СОХРАНЕНИЕ ВСЕГО ПАКЕТА
-        // dataManager.save() внутри @Transactional гарантирует атомарность.
-        // Мы сохраняем и обновленный счет, и саму транзакцию (вместе с TransactionItems,
-        // так как в сущности стоит @Composition и CascadeType.ALL)
+        // === 4. ОБНОВЛЕНИЕ СУММЫ НАКОПЛЕНИЙ (EFFECTIVE CASH) ===
+        BigDecimal currentEffectiveCash = account.getEffectiveCash() != null ? account.getEffectiveCash() : BigDecimal.ZERO;
+        // Берем финальную сумму чека (после всех скидок и списаний)
+        BigDecimal finalPaidAmount = transaction.getTotalAmount() != null ? transaction.getTotalAmount() : BigDecimal.ZERO;
+
+        BigDecimal newEffectiveCash = currentEffectiveCash.add(finalPaidAmount);
+        account.setEffectiveCash(newEffectiveCash);
+
+
+        syncAndGetActualLevel(account, bestConfig);
+
+        // === 6. СОХРАНЕНИЕ ===
         dataManager.save(transaction, account);
 
-        log.info("Транзакция успешно проведена. ID: {}, Новый баланс: {}",
-                transaction.getId(), newBalance);
+        log.info("Транзакция ID: {} проведена (Стратегия: {}). Новый баланс: {}, Эффективная сумма: {}",
+                transaction.getId(), transaction.getMarkStrategy().name(), newBalance, newEffectiveCash);
     }
 }

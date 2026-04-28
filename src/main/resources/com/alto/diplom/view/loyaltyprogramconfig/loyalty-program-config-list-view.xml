@@ -15,7 +15,11 @@
         <instance id="loyaltyProgramConfigDc"
                   class="com.alto.diplom.entity.config.LoyaltyProgramConfig">
             <fetchPlan extends="_base">
-                <property name="levels" fetchPlan="_base"/>
+                <property name="levels" fetchPlan="_base">
+                    <property name="cashbackRate"/>
+                    <property name="markspendRate"/>
+                    <property name="requiredSum"/>
+                </property>
             </fetchPlan>
 
             <collection id="levelsDc" property="levels"/>
@@ -78,6 +82,9 @@
                         <column property="number"/>
                         <column property="name"/>
                         <column property="discount"/>
+                        <column property="cashbackRate"/>
+                        <column property="markspendRate"/>
+                        <column property="requiredSum"/>
                     </columns>
                 </dataGrid>
             </vbox>

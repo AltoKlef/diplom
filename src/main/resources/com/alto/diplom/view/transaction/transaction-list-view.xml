@@ -46,8 +46,11 @@
                 </genericFilter>
                 <hbox id="buttonsPanel" classNames="buttons-panel">
                     <startSlot>
-                        <button id="createButton" action="transactionsDataGrid.createAction"/>
-                        <button id="editButton" action="transactionsDataGrid.editAction"/>
+                        <button id="createPurchaseBtn"
+                                text="Создать покупку"
+                                icon="PLUS"
+                                themeNames="primary success"/>
+                        button id="editButton" action="transactionsDataGrid.editAction"/>
                         <button id="removeButton" action="transactionsDataGrid.removeAction"/>
                     </startSlot>
                     <endSlot>

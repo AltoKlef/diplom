@@ -61,5 +61,7 @@ public class TransactionItem {
     private BigDecimal discount;
 
 
-
+    public void setTransaction(Transaction transaction){
+        this.transactionn = transaction;
+    }
 }

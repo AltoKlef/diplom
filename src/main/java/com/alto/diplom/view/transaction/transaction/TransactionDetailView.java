@@ -1,6 +1,7 @@
 package com.alto.diplom.view.transaction.transaction;
 
 import com.alto.diplom.core.loyalty.LoyaltyService;
+import com.alto.diplom.entity.TransactionParameters;
 import com.alto.diplom.entity.items.Item;
 import com.alto.diplom.entity.transactions.Transaction;
 import com.alto.diplom.entity.transactions.TransactionItem;
@@ -63,19 +64,17 @@ public class TransactionDetailView extends StandardDetailView<Transaction> {
 
     // В TransactionDetailView
     @Subscribe(id = "itemsDc", target = Target.DATA_CONTAINER)
-    public void onItemsDcCollectionChange(final CollectionContainer.CollectionChangeEvent<TransactionItem> event) {
-        // Считаем общую сумму чека (Total Amount)
-        BigDecimal total = getEditedEntity().getItems().stream()
-                .map(TransactionItem::getTotalSum)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    public void onItemsDcCollectionChange(CollectionContainer.CollectionChangeEvent<TransactionItem> event) {
+        Transaction transaction = getEditedEntity();
 
-        getEditedEntity().setTotalAmount(total);
+        // ПРЕДОХРАНИТЕЛЬ:
+        if (transaction.getCustomer() == null || transaction.getCompany() == null) {
+            return; // Рано считать, кассир еще не выбрал клиента
+        }
 
-        // Вызываем твой расчет баллов
-        loyaltyService.calculateAccrual(getEditedEntity());
+        // Только если данные есть — вызываем сервис
+        TransactionParameters params = loyaltyService.calculateFullParameters(transaction);
     }
-
 
     @Subscribe("addFromCatalogBtn")
     public void onAddFromCatalogBtnClick(final ClickEvent<JmixButton> event) {
@@ -110,6 +109,6 @@ public class TransactionDetailView extends StandardDetailView<Transaction> {
         itemsDc.getMutableItems().add(newItem);
 
         // 6. Вызываем пересчет (твой метод с LoyaltyService)
-        loyaltyService.calculateAccrual(newItem.getTransactionn());
+        loyaltyService.calculateFullParameters(newItem.getTransactionn());
     }
 }

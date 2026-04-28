@@ -110,27 +110,6 @@ public class ItemGroupListView extends StandardListView<ItemGroup> {
     private DataGrid<Item> itemsDataGrid;
 
 
-//    @Subscribe("saveButton")
-//    public void onSaveButtonClick(final ClickEvent<JmixButton> event) {
-//        saveEditedEntity();
-//    }
-
-//    @Subscribe("cancelButton")
-//    public void onCancelButtonClick(final ClickEvent<JmixButton> event) {
-//        if (!hasUnsavedChanges()) {
-//            discardEditedEntity();
-//            return;
-//        }
-//
-//        if (uiViewProperties.isUseSaveConfirmation()) {
-//            viewValidation.showSaveConfirmationDialog(this)
-//                    .onSave(this::saveEditedEntity)
-//                    .onDiscard(this::discardEditedEntity);
-//        } else {
-//            viewValidation.showUnsavedChangesDialog(this)
-//                    .onDiscard(this::discardEditedEntity);
-//        }
-//    }
     @Subscribe(id = "itemGroupsDc", target = Target.DATA_CONTAINER)
     public void onItemGroupsDcItemChange(final InstanceContainer.ItemChangeEvent<ItemGroup> event) {
         ItemGroup selectedGroup = event.getItem();

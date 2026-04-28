@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://transactionDetailBuyView.title"
+      focusComponent="customerPicker">
+    <data>
+        <instance id="transactionDc" class="com.alto.diplom.entity.transactions.Transaction">
+            <fetchPlan extends="_base">
+                <property name="items" fetchPlan="_base"/>
+                <property name="customer" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="transactionDl"/>
+
+            <collection id="transactionItemsDc" property="items"/>
+        </instance>
+
+        <collection id="itemGroupsDc" class="com.alto.diplom.entity.items.ItemGroup">
+            <fetchPlan extends="_base"/>
+            <loader id="itemGroupsDl">
+                <query><![CDATA[select e from ItemGroup e]]></query>
+            </loader>
+        </collection>
+        <collection id="itemsDc" class="com.alto.diplom.entity.items.Item">
+            <fetchPlan extends="_base"/>
+            <loader id="itemsDl">
+                <query><![CDATA[select e from Item e where e.itemGroup = :group]]></query>
+            </loader>
+        </collection>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveCloseAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+    <layout padding="true" spacing="true">
+        <hbox width="100%" height="100%" spacing="true">
+
+            <hbox width="65%" height="100%" spacing="true" classNames="bg-contrast-5" padding="true">
+                <vbox width="40%" height="100%" spacing="true">
+                    <h4 text="Категории"/>
+                    <treeDataGrid id="itemGroupsDataGrid" width="100%" height="100%"
+                                  dataContainer="itemGroupsDc" hierarchyProperty="parent">
+                        <columns>
+                            <column property="name"/>
+                        </columns>
+                    </treeDataGrid>
+                </vbox>
+
+                <vbox width="60%" height="100%" spacing="true">
+                    <h4 text="Товары в категории"/>
+                    <dataGrid id="catalogItemsDataGrid" width="100%" height="100%" dataContainer="itemsDc">
+                        <columns>
+                            <column property="name"/>
+                            <column property="price"/>
+                        </columns>
+                    </dataGrid>
+                    <button id="addToCartBtn" text="Добавить в чек ==>" icon="ARROW_RIGHT"
+                            themeNames="primary success" width="100%"/>
+                </vbox>
+            </hbox>
+
+            <vbox width="35%" height="100%" spacing="true" classNames="bg-contrast-10" padding="true">
+                <h3 text="Текущий чек"/>
+
+                <dataGrid id="itemsTable" dataContainer="transactionItemsDc" width="100%" height="100%" minHeight="200px">
+                    <actions>
+                        <action id="remove" type="list_remove"/>
+                    </actions>
+                    <columns>
+                        <column property="item.name" header="Товар"/>
+                        <column property="quantity" width="80px"/>
+                        <column property="totalSum" header="Сумма"/>
+                    </columns>
+                </dataGrid>
+
+                <hr/>
+
+                <entityPicker id="customerPicker" dataContainer="transactionDc" property="customer" label="Выбор клиента">
+                    <actions>
+                        <action id="lookup" type="entity_lookup"/>
+                        <action id="clear" type="entity_clear"/>
+                    </actions>
+                </entityPicker>
+
+                <checkbox id="spendPointsCheck" label="Списать доступные баллы?" value="false"/>
+                <bigDecimalField id="pointsToSpendField" label="Будет списано" readOnly="true"/>
+
+                <vbox spacing="false" padding="false">
+                    <span id="balanceInfo" text="Доступно баллов: 0"/>
+                    <span id="earnedInfo" text="Будет начислено: 0" classNames="text-secondary"/>
+                    <span id="totalInfo" classNames="font-bold text-2xl text-primary" text="ИТОГО: 0"/>
+                </vbox>
+
+                <vbox width="100%" spacing="xs">
+                    <button id="calculateBtn" text="Рассчитать скидки" themeNames="secondary" width="100%"/>
+                    <button id="buyBtn" text="ОПЛАТИТЬ И ПЕЧАТЬ" themeNames="primary success large" width="100%"/>
+                    <button id="cancelBtn" action="closeAction" themeNames="tertiary" width="100%"/>
+                </vbox>
+            </vbox>
+
+        </hbox>
+    </layout>
+</view>

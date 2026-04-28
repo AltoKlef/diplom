@@ -6,6 +6,7 @@ import com.alto.diplom.view.main.MainView;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.HasValueAndElement;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -20,6 +21,7 @@ import io.jmix.core.repository.JmixDataRepositoryContext;
 import io.jmix.core.validation.group.UiCrossFieldChecks;
 import io.jmix.flowui.UiComponentProperties;
 import io.jmix.flowui.UiViewProperties;
+import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.accesscontext.UiEntityAttributeContext;
 import io.jmix.flowui.action.SecuredBaseAction;
 import io.jmix.flowui.component.UiComponentUtils;
@@ -86,6 +88,18 @@ public class TransactionListView extends StandardListView<Transaction> {
             transactionDl.setEntityId(null);
             transactionDc.setItem(null);
         }
+    }
+
+    @Autowired
+    private ViewNavigators viewNavigators;
+
+    @Subscribe("createPurchaseBtn")
+    public void onCreatePurchaseBtnClick(final ClickEvent<Button> event) {
+        viewNavigators.detailView(transactionsDataGrid)
+                .withViewId("Transaction.detailBuy") // ID твоего нового экрана
+                .newEntity() // Указываем, что создаем новый чек
+                .withBackwardNavigation(true) // Чтобы можно было вернуться назад к списку
+                .navigate();
     }
 
     // ДЕЛЕГАТЫ ДЛЯ РАБОТЫ С РЕПОЗИТОРИЕМ (Оставляем как есть)

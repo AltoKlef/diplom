@@ -19,6 +19,7 @@
                 </property>
                 <property name="createdBy"/>
                 <property name="createdDate"/>
+                <property name="customerGroups" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="customersDl" readOnly="true"/>
         </collection>

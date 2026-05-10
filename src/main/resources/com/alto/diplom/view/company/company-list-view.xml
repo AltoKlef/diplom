@@ -11,6 +11,7 @@
             </fetchPlan>
             <loader id="companiesDl" readOnly="true"/>
         </collection>
+
     </data>
     <facets>
         <dataLoadCoordinator auto="true"/>

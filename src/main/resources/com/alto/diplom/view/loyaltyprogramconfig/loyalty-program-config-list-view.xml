@@ -44,7 +44,7 @@
                 </hbox>
                 <dataGrid id="loyaltyProgramConfigsDataGrid"
                           width="100%"
-                          dataContainer="loyaltyProgramConfigsDc">
+                          dataContainer="loyaltyProgramConfigsDc" columnReorderingAllowed="true" aggregatable="true">
                     <actions>
                         <action id="create" type="list_create"/>
                         <action id="edit" type="list_edit"/>

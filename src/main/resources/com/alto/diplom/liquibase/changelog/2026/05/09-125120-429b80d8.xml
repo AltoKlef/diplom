@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="diplom">
+        <dropIndex indexName="idx_customer_bonus_account_company_id_id" tableName="customer_bonus_account"/>
+    </changeSet>
+    <changeSet id="2" author="diplom">
+        <dropIndex indexName="idx_customer_company_id_id" tableName="customer"/>
+    </changeSet>
+    <changeSet id="3" author="diplom">
+        <dropIndex indexName="idx_customer_group_company_id_id" tableName="customer_group"/>
+    </changeSet>
+    <changeSet id="4" author="diplom">
+        <dropIndex indexName="idx_item_group_company_id_id" tableName="item_group"/>
+    </changeSet>
+    <changeSet id="5" author="diplom">
+        <dropIndex indexName="idx_loyalty_program_config_company_id_id" tableName="loyalty_program_config"/>
+    </changeSet>
+    <changeSet id="6" author="diplom">
+        <dropIndex indexName="idx_ls_user_company_id_id" tableName="ls_user"/>
+    </changeSet>
+    <changeSet id="7" author="diplom">
+        <dropIndex indexName="idx_on_register_config_company_id_id" tableName="on_register_config"/>
+    </changeSet>
+    <changeSet id="8" author="diplom">
+        <dropIndex indexName="idx_transaction_company_id_id" tableName="transaction_"/>
+    </changeSet>
+    <changeSet id="9" author="diplom">
+        <dropIndex indexName="idx_transaction_config_company_id_id" tableName="transaction_config"/>
+    </changeSet>
+</databaseChangeLog>

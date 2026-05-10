@@ -15,9 +15,10 @@
             <fetchPlan extends="_base">
                 <property name="itemGroup" fetchPlan="_instance_name"/>
             </fetchPlan>
-            <loader id="itemsDl"> <query>
-                <![CDATA[select e from Item e where e.itemGroup = :group]]>
-            </query>
+            <loader id="itemsDl">
+                <query>
+                    <![CDATA[select e from Item e where e.itemGroup = :group]]>
+                </query>
             </loader>
         </collection>
         <instance id="itemGroupDc"
@@ -27,7 +28,6 @@
             </fetchPlan>
             <loader id="itemGroupDl"/>
         </instance>
-
     </data>
     <facets>
         <dataLoadCoordinator auto="true"/>
@@ -88,7 +88,6 @@
                     <button id="itemEditBtn" action="itemsDataGrid.edit"/>
                     <button id="itemRemoveBtn" action="itemsDataGrid.remove"/>
                 </hbox>
-
                 <dataGrid id="itemsDataGrid"
                           width="100%"
                           dataContainer="itemsDc">
@@ -100,6 +99,8 @@
                     <columns>
                         <column property="name"/>
                         <column property="price"/>
+                        <column property="canPayByMark"/>
+                        <column property="canMarkIncrease"/>
                     </columns>
                 </dataGrid>
             </vbox>

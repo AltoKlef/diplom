@@ -27,6 +27,7 @@
                 <property name="company" fetchPlan="_base"/>
             </fetchPlan>
         </instance>
+
     </data>
     <facets>
         <dataLoadCoordinator auto="true"/>

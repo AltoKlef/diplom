@@ -6,7 +6,7 @@
     <data>
         <collection id="customersDc"
                     class="com.alto.diplom.entity.core.Customer">
-            <fetchPlan extends="_instance_name">
+            <fetchPlan extends="_base">
                 <property name="phone"/>
                 <property name="firstName"/>
                 <property name="lastName"/>

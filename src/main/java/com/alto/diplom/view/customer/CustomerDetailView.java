@@ -42,38 +42,41 @@ public class CustomerDetailView extends StandardDetailView<Customer> {
     @Autowired
     private EntityStates entityStates;
 
-    // Репозиторий тут только мешает нормальной работе DataContext, убираем его из делегатов
     @ViewComponent
     private Span groupsListSpan;
 
-    @Subscribe
-    public void onReady(final ReadyEvent event) {
-        Customer customer = getEditedEntity();
-        if (customer.getCustomerGroups() != null && !customer.getCustomerGroups().isEmpty()) {
-            String groups = customer.getCustomerGroups().stream()
-                    .map(CustomerGroup::getName)
-                    .collect(Collectors.joining(", "));
-            groupsListSpan.setText("Группы: " + groups);
-        } else {
-            groupsListSpan.setText("Группы: не назначены");
-        }
-    }
+
+    @ViewComponent
+    private InstanceContainer<Customer> customerDc; // Инжектируй свой контейнер
+
     @Subscribe
     public void onBeforeShow(final BeforeShowEvent event) {
         Customer customer = getEditedEntity();
 
+        // Если это не новый клиент и группы не загружены — грузим ПРИНУДИТЕЛЬНО
+        if (!entityStates.isNew(customer) && !entityStates.isLoaded(customer, "customerGroups")) {
+            Customer reloadedCustomer = dataManager.load(Customer.class)
+                    .id(customer.getId())
+                    .fetchPlan(plan -> {
+                        plan.addFetchPlan(FetchPlan.BASE);
+                        plan.add("customerGroups", FetchPlan.BASE);
+                        plan.add("company", FetchPlan.INSTANCE_NAME);
+                    })
+                    .one();
+
+            // ВАЖНО: Устанавливаем перечитанный объект в контейнер экрана
+            customerDc.setItem(reloadedCustomer);
+            customer = reloadedCustomer;
+        }
+
+        // Твоя логика с бонусным счетом
         if (entityStates.isNew(customer)) {
-            // Создаем новый счет
             CustomerBonusAccount newAccount = dataContext.create(CustomerBonusAccount.class);
             newAccount.setCustomer(customer);
             newAccount.setMark(BigDecimal.ZERO);
-
-
             newAccount.setCompany(customer.getCompany());
-
             bonusAccountDc.setItem(newAccount);
         } else {
-            // Загружаем существующий счет через DataManager
             dataManager.load(CustomerBonusAccount.class)
                     .query("select e from CustomerBonusAccount e where e.customer = :cust")
                     .parameter("cust", customer)
@@ -85,6 +88,31 @@ public class CustomerDetailView extends StandardDetailView<Customer> {
         }
     }
 
+    @Subscribe
+    public void onReady(final ReadyEvent event) {
+        // Берем актуальный объект из контейнера
+        Customer customer = customerDc.getItem();
+
+        // Безопасная проверка: загружено ли поле и не пустое ли оно
+        if (entityStates.isLoaded(customer, "customerGroups") && customer.getCustomerGroups() != null) {
+            try {
+                // Если групп нет, isEmpty() сработает нормально на загруженном IndirectSet
+                if (!customer.getCustomerGroups().isEmpty()) {
+                    String groups = customer.getCustomerGroups().stream()
+                            .map(CustomerGroup::getName)
+                            .collect(Collectors.joining(", "));
+                    groupsListSpan.setText("Группы: " + groups);
+                } else {
+                    groupsListSpan.setText("Группы: не назначены");
+                }
+            } catch (Exception e) {
+                // Подстраховка на случай странностей EclipseLink
+                groupsListSpan.setText("Группы: ошибка загрузки");
+            }
+        } else {
+            groupsListSpan.setText("Группы: не назначены");
+        }
+    }
     @Subscribe(id = "customerDc", target = Target.DATA_CONTAINER)
     public void onCustomerDcItemPropertyChange(final InstanceContainer.ItemPropertyChangeEvent<Customer> event) {
         // Если изменилось поле "company"
